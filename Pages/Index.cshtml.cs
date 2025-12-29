@@ -22,41 +22,94 @@ namespace HarmonicaTuningDesigner.Pages
 
         public void OnGet()
         {
+            InitializeViewModel();
+        }
+
+        public IActionResult OnPost()
+        {
+            // Rebuild lists and selected plates based on posted values so the UI reflects changes.
+            InitializeViewModel();
+
+            // Keep current selections from posted ViewModel where appropriate.
+            // If Tuning/Mode/Key were posted, respect them; otherwise fall back to defaults.
+
+            // Ensure holes count is respected by trimming or padding the Holes list
+            AdjustHoleCounts(ViewModel.Diatonic);
+            AdjustHoleCounts(ViewModel.ChromaticUpper);
+            AdjustHoleCounts(ViewModel.ChromaticLower);
+
+            return Page();
+        }
+
+        private void InitializeViewModel()
+        {
             var scales = _scaleRepo.GetAll();
             var tunings = _tuningRepo.GetAll();
 
-            ViewModel = new HarmonicaDesignerViewModel
-            {
-                HarmonicaType = "Diatonic",
-                HoleCount = 10,
+            // If lists already exist on posted ViewModel preserve them, otherwise populate
+            ViewModel.AvailableKeys = ViewModel.AvailableKeys ?? GetKeys();
+            ViewModel.AvailableModes = ViewModel.AvailableModes ?? scales.SelectMany(s => s.Modes)
+                                           .Select(m => m.Name)
+                                           .Distinct()
+                                           .ToList();
+            ViewModel.AvailableTunings = ViewModel.AvailableTunings ?? tunings.Select(t => t.Name).ToList();
 
-                AvailableKeys = GetKeys(),
-                AvailableModes = scales.SelectMany(s => s.Modes)
-                                       .Select(m => m.Name)
-                                       .Distinct()
-                                       .ToList(),
+            // Ensure defaults on first load
+            if (string.IsNullOrEmpty(ViewModel.HarmonicaType)) ViewModel.HarmonicaType = "Diatonic";
+            if (ViewModel.HoleCount == 0) ViewModel.HoleCount = 10;
 
-                AvailableTunings = tunings.Select(t => t.Name).ToList(),
+            // Ensure reed plates exist
+            if (ViewModel.Diatonic == null)
+                ViewModel.Diatonic = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First(), ViewModel.HoleCount);
 
-                Diatonic = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First()),
-                ChromaticUpper = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First()),
-                ChromaticLower = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First())
-            };
+            if (ViewModel.ChromaticUpper == null)
+                ViewModel.ChromaticUpper = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First(), ViewModel.HoleCount);
+
+            if (ViewModel.ChromaticLower == null)
+                ViewModel.ChromaticLower = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First(), ViewModel.HoleCount);
         }
 
-        private ReedPlateViewModel CreateDefaultReedPlate(Tuning tuning, Mode mode)
+        private void AdjustHoleCounts(ReedPlateViewModel plate)
         {
+            if (plate == null || plate.Holes == null) return;
+
+            var desired = ViewModel.HoleCount;
+            if (plate.Holes.Count > desired)
+            {
+                plate.Holes = plate.Holes.Take(desired).ToList();
+            }
+            else if (plate.Holes.Count < desired)
+            {
+                // Pad with empty notes using the same note/octave as last entry
+                var last = plate.Holes.Last();
+                for (int i = plate.Holes.Count + 1; i <= desired; i++)
+                {
+                    plate.Holes.Add(new HoleViewModel
+                    {
+                        Index = i,
+                        Blow = new NoteCell { Note = last.Blow.Note, Octave = last.Blow.Octave },
+                        Draw = new NoteCell { Note = last.Draw.Note, Octave = last.Draw.Octave }
+                    });
+                }
+            }
+        }
+
+        private ReedPlateViewModel CreateDefaultReedPlate(Tuning tuning, Mode mode, int holes)
+        {
+            var baseLayout = tuning.BaseLayout;
+            var list = baseLayout.Take(holes).Select(h => new HoleViewModel
+            {
+                Index = h.Index,
+                Blow = new NoteCell { Note = h.Blow, Octave = 4, IsAltered = h.Blow.Contains("#") || h.Blow.Contains("b") },
+                Draw = new NoteCell { Note = h.Draw, Octave = 4, IsAltered = h.Draw.Contains("#") || h.Draw.Contains("b") }
+            }).ToList();
+
             return new ReedPlateViewModel
             {
                 Key = "C",
                 Tuning = tuning.Name,
                 Mode = mode.Name,
-                Holes = tuning.BaseLayout.Select(h => new HoleViewModel
-                {
-                    Index = h.Index,
-                    Blow = new NoteCell { Note = h.Blow, Octave = 4 },
-                    Draw = new NoteCell { Note = h.Draw, Octave = 4 }
-                }).ToList()
+                Holes = list
             };
         }
 

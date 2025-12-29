@@ -3,7 +3,7 @@
 <div class="reedplate-controls">
     <label>Key</label>
     <select asp-for="Key">
-        @foreach (var key in ViewBag.AvailableKeys)
+        @foreach (var key in (List<string>)ViewData["AvailableKeys"])
         {
             <option>@key</option>
         }
@@ -11,7 +11,7 @@
 
     <label>Tuning</label>
     <select asp-for="Tuning">
-        @foreach (var tuning in ViewBag.AvailableTunings)
+        @foreach (var tuning in (List<string>)ViewData["AvailableTunings"])
         {
             <option>@tuning</option>
         }
@@ -19,7 +19,7 @@
 
     <label>Mode</label>
     <select asp-for="Mode">
-        @foreach (var mode in ViewBag.AvailableModes)
+        @foreach (var mode in (List<string>)ViewData["AvailableModes"])
         {
             <option>@mode</option>
         }
@@ -28,36 +28,59 @@
 
 <div class="harmonica-grid">
 
-    <!-- Blow Row -->
-    <div class="row-label">Blow</div>
+    <!-- Column for each hole; blow above draw in the same column -->
     @foreach (var hole in Model.Holes)
     {
-        <div class="note-cell blow"
-             data-hole="@hole.Index"
-             data-type="blow"
-             onclick="playNote(this)">
-            <span>@hole.Blow.Note@hole.Blow.Octave</span>
-            @if (hole.Blow.IsAltered)
-            {
-                <small>*</small>
-            }
-        </div>
-    }
+        <div class="hole-column">
+            <div class="note-cell blow"
+                 data-hole="@hole.Index"
+                 data-type="blow"
+                 onclick="playNote(this)">
+                <span>@(FormatNote(hole.Blow))</span>
+                @if (hole.Blow.IsAltered)
+                {
+                    <small>*</small>
+                }
+            </div>
 
-    <!-- Draw Row -->
-    <div class="row-label">Draw</div>
-    @foreach (var hole in Model.Holes)
-    {
-        <div class="note-cell draw"
-             data-hole="@hole.Index"
-             data-type="draw"
-             onclick="playNote(this)">
-            <span>@hole.Draw.Note@hole.Draw.Octave</span>
-            @if (hole.Draw.IsAltered)
-            {
-                <small>*</small>
-            }
+            <div class="note-cell draw"
+                 data-hole="@hole.Index"
+                 data-type="draw"
+                 onclick="playNote(this)">
+                <span>@(FormatNote(hole.Draw))</span>
+                @if (hole.Draw.IsAltered)
+                {
+                    <small>*</small>
+                }
+            </div>
         </div>
     }
 
 </div>
+
+@functions {
+    private string FormatNote(NoteCell cell)
+    {
+        if (cell == null) return string.Empty;
+        // If Note already looks like a letter (contains letters) just show Note+Octave
+        if (cell.Note.Any(char.IsLetter))
+            return $"{cell.Note}{cell.Octave}";
+
+        // Otherwise, if the Note is numeric (MIDI) convert to letter+octave
+        if (int.TryParse(cell.Note, out var midi))
+        {
+            return MidiToNoteName(midi);
+        }
+
+        return $"{cell.Note}{cell.Octave}";
+    }
+
+    private string MidiToNoteName(int midi)
+    {
+        // MIDI note 60 = C4
+        var names = new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+        var octave = (midi / 12) - 1;
+        var name = names[midi % 12];
+        return $"{name}{octave}";
+    }
+}

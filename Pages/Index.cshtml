@@ -1,6 +1,7 @@
 ﻿@page
 @model HarmonicaTuningDesigner.Pages.IndexModel
 
+<form method="post" id="designerForm">
 <div class="designer-container">
 
     <!-- ========================= -->
@@ -37,6 +38,7 @@
                     ["AvailableTunings"] = Model.ViewModel.AvailableTunings,
                     ["AvailableModes"] = Model.ViewModel.AvailableModes
                 };
+                vd.TemplateInfo.HtmlFieldPrefix = "ViewModel.Diatonic";
             }
             @await Html.PartialAsync("_ReedPlate", Model.ViewModel.Diatonic, vd)
         </div>
@@ -56,6 +58,7 @@
                     ["AvailableTunings"] = Model.ViewModel.AvailableTunings,
                     ["AvailableModes"] = Model.ViewModel.AvailableModes
                 };
+                vdOut.TemplateInfo.HtmlFieldPrefix = "ViewModel.ChromaticUpper";
             }
             @await Html.PartialAsync("_ReedPlate", Model.ViewModel.ChromaticUpper, vdOut)
         </div>
@@ -69,9 +72,29 @@
                     ["AvailableTunings"] = Model.ViewModel.AvailableTunings,
                     ["AvailableModes"] = Model.ViewModel.AvailableModes
                 };
+                vdIn.TemplateInfo.HtmlFieldPrefix = "ViewModel.ChromaticLower";
             }
             @await Html.PartialAsync("_ReedPlate", Model.ViewModel.ChromaticLower, vdIn)
         </div>
     }
 
 </div>
+</form>
+
+@section Scripts {
+    <script>
+        (function() {
+            var form = document.getElementById('designerForm');
+            if (!form) return;
+
+            // Submit the form whenever a select changes so model binding on the server updates the view.
+            form.addEventListener('change', function (e) {
+                var target = e.target;
+                if (target && target.tagName === 'SELECT') {
+                    // simple full postback to update the UI; you can later replace with AJAX if desired
+                    form.submit();
+                }
+            });
+        })();
+    </script>
+}
