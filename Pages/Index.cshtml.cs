@@ -143,18 +143,40 @@ namespace HarmonicaTuningDesigner.Pages
             var middleC = 60;
 
             var list = new List<HoleViewModel>();
+            int prevBlowMidi = int.MinValue / 2;
+            int prevDrawMidi = int.MinValue / 2;
+
+            var intervals = mode?.Intervals ?? new List<int> { 0, 2, 4, 5, 7, 9, 11 };
+
             for (int i = 0; i < Math.Min(holes, baseLayout.Count); i++)
             {
                 var h = baseLayout[i];
 
-                var blowCell = BuildCellFromDegreeString(h.Blow, keySemitone, mode, middleC);
-                var drawCell = BuildCellFromDegreeString(h.Draw, keySemitone, mode, middleC);
+                int blowMidi = ComputeBaseMidiFromDegreeOrNote(h.Blow, keySemitone, intervals, middleC);
+                // make blow progress upward relative to previous
+                while (blowMidi <= prevBlowMidi)
+                {
+                    blowMidi += 12;
+                }
+                prevBlowMidi = blowMidi;
+
+                int drawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
+                while (drawMidi <= prevDrawMidi)
+                {
+                    drawMidi += 12;
+                }
+                prevDrawMidi = drawMidi;
+
+                var blowName = SemitoneToName(blowMidi % 12);
+                var drawName = SemitoneToName(drawMidi % 12);
+                var blowOct = (blowMidi / 12) - 1;
+                var drawOct = (drawMidi / 12) - 1;
 
                 list.Add(new HoleViewModel
                 {
                     Index = h.Index,
-                    Blow = blowCell,
-                    Draw = drawCell
+                    Blow = new NoteCell { Note = blowName, Octave = blowOct, IsAltered = blowName.Contains("#") },
+                    Draw = new NoteCell { Note = drawName, Octave = drawOct, IsAltered = drawName.Contains("#") }
                 });
             }
 
@@ -176,26 +198,21 @@ namespace HarmonicaTuningDesigner.Pages
             return list;
         }
 
-        private NoteCell BuildCellFromDegreeString(string degreeStr, int keySemitone, Mode mode, int middleCMidi)
+        private int ComputeBaseMidiFromDegreeOrNote(string degreeStr, int keySemitone, List<int> intervals, int middleCMidi)
         {
             if (int.TryParse(degreeStr, out var degree))
             {
-                // degree 1 -> index 0
                 var idx = Math.Max(0, degree - 1);
-                // wrap if mode intervals shorter
-                var intervals = mode?.Intervals ?? new List<int> { 0, 2, 4, 5, 7, 9, 11 };
                 var interval = intervals[idx % intervals.Count];
-
-                var midi = middleCMidi + keySemitone + interval; // root at C4 + key + interval
-                var octave = (midi / 12) - 1;
-                var name = SemitoneToName(midi % 12);
-
-                return new NoteCell { Note = name, Octave = octave, IsAltered = name.Contains("#") };
+                var midi = middleCMidi + keySemitone + interval;
+                return midi;
             }
 
-            // fallback: try to treat as literal note name
+            // fallback: try to parse literal note name possibly with octave
             var transposed = TransposeNoteName(degreeStr, keySemitone);
-            return new NoteCell { Note = transposed.Name, Octave = transposed.Octave, IsAltered = transposed.Name.Contains("#") || transposed.Name.Contains("b") };
+            var sem = NoteNameToSemitone(transposed.Name);
+            var midiFromName = (transposed.Octave + 1) * 12 + sem;
+            return midiFromName;
         }
 
         private void AdjustHoleCounts(ReedPlateViewModel plate)
