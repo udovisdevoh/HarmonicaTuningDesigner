@@ -154,8 +154,8 @@ namespace HarmonicaTuningDesigner.Pages
 
                 int drawMidi;
 
-                // Special-case Richter 10-hole draw grouping to match expected layout
-                if (string.Equals(tuning.Id, "richter", StringComparison.OrdinalIgnoreCase) && holes == 10)
+                // Use 10-hole draw grouping for all 10-hole tunings to keep conventional harmonica octave layout
+                if (holes == 10)
                 {
                     int drawGroup;
                     if (i <= 2) drawGroup = 0; // holes 1-3
