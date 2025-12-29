@@ -215,57 +215,6 @@
     </Tuning>
 
     <!-- ====================================================== -->
-    <!-- MELODY MAKER -->
-    <!-- ====================================================== -->
-
-    <Tuning id="melody_maker" name="Melody Maker">
-        <Description>Major scale available without bends</Description>
-
-        <Base holes="10">
-            <Hole index="1">
-                <Blow>1</Blow>
-                <Draw>2</Draw>
-            </Hole>
-            <Hole index="2">
-                <Blow>3</Blow>
-                <Draw>4</Draw>
-            </Hole>
-            <Hole index="3">
-                <Blow>5</Blow>
-                <Draw>6</Draw>
-            </Hole>
-            <Hole index="4">
-                <Blow>1</Blow>
-                <Draw>2</Draw>
-            </Hole>
-            <Hole index="5">
-                <Blow>3</Blow>
-                <Draw>4</Draw>
-            </Hole>
-            <Hole index="6">
-                <Blow>5</Blow>
-                <Draw>6</Draw>
-            </Hole>
-            <Hole index="7">
-                <Blow>1</Blow>
-                <Draw>7</Draw>
-            </Hole>
-            <Hole index="8">
-                <Blow>3</Blow>
-                <Draw>6</Draw>
-            </Hole>
-            <Hole index="9">
-                <Blow>5</Blow>
-                <Draw>4</Draw>
-            </Hole>
-            <Hole index="10">
-                <Blow>1</Blow>
-                <Draw>2</Draw>
-            </Hole>
-        </Base>
-    </Tuning>
-
-    <!-- ====================================================== -->
     <!-- SOLO TUNING -->
     <!-- ====================================================== -->
 
