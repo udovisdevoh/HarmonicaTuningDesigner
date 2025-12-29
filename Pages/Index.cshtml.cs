@@ -135,7 +135,8 @@ namespace HarmonicaTuningDesigner.Pages
 
         private List<HoleViewModel> BuildHolesFromTuning(Tuning tuning, int holes, string key, Mode mode)
         {
-            var baseLayout = tuning.BaseLayout;
+            // Use tuning.GetLayout so expansions that target the requested holes are applied
+            var baseLayout = tuning.GetLayout(holes);
             var keySemitone = NoteNameToSemitone(key);
             var middleC = 60;
 
@@ -279,7 +280,8 @@ namespace HarmonicaTuningDesigner.Pages
 
         private ReedPlateViewModel CreateDefaultReedPlate(Tuning tuning, Mode mode, int holes)
         {
-            var baseLayout = tuning.BaseLayout;
+            // Use tuning.GetLayout so expansions for requested hole count are applied
+            var baseLayout = tuning.GetLayout(holes);
             var list = baseLayout.Take(holes).Select(h => new HoleViewModel
             {
                 Index = h.Index,

@@ -19,21 +19,53 @@ namespace HarmonicaTuningDesigner
 
             return doc.Root!
                 .Elements("Tuning")
-                .Select(tuningEl => new Tuning
+                .Select(tuningEl =>
                 {
-                    Id = (string)tuningEl.Attribute("id")!,
-                    Name = (string)tuningEl.Attribute("name")!,
-                    BaseHoles = (int)tuningEl.Element("Base")!.Attribute("holes")!,
-                    BaseLayout = tuningEl.Element("Base")!
+                    var baseEl = tuningEl.Element("Base")!;
+                    var baseList = baseEl
                         .Elements("Hole")
                         .Select(holeEl => new HoleDefinition
                         {
                             Index = (int)holeEl.Attribute("index")!,
                             Blow = holeEl.Element("Blow")!.Value,
                             Draw = holeEl.Element("Draw")!.Value
-                        }).ToList()
+                        })
+                        .ToList();
+
+                    var expansions = new List<Expansion>();
+                    var expansionsEl = tuningEl.Element("Expansions");
+                    if (expansionsEl != null)
+                    {
+                        expansions = expansionsEl.Elements("Expansion")
+                            .Select(expEl => new Expansion
+                            {
+                                Holes = (int)expEl.Attribute("holes")!,
+                                Prepend = expEl.Element("Prepend")?.Elements("Hole")
+                                    .Select(h => new HoleDefinition
+                                    {
+                                        Index = 0,
+                                        Blow = h.Element("Blow")!.Value,
+                                        Draw = h.Element("Draw")!.Value
+                                    }).ToList() ?? new List<HoleDefinition>(),
+                                Append = expEl.Element("Append")?.Elements("Hole")
+                                    .Select(h => new HoleDefinition
+                                    {
+                                        Index = 0,
+                                        Blow = h.Element("Blow")!.Value,
+                                        Draw = h.Element("Draw")!.Value
+                                    }).ToList() ?? new List<HoleDefinition>()
+                            }).ToList();
+                    }
+
+                    return new Tuning
+                    {
+                        Id = (string)tuningEl.Attribute("id")!,
+                        Name = (string)tuningEl.Attribute("name")!,
+                        BaseHoles = (int)baseEl.Attribute("holes")!,
+                        BaseLayout = baseList,
+                        Expansions = expansions
+                    };
                 }).ToList();
         }
     }
-
 }
