@@ -1,0 +1,63 @@
+﻿@model ReedPlateViewModel
+
+<div class="reedplate-controls">
+    <label>Key</label>
+    <select asp-for="Key">
+        @foreach (var key in ViewBag.AvailableKeys)
+        {
+            <option>@key</option>
+        }
+    </select>
+
+    <label>Tuning</label>
+    <select asp-for="Tuning">
+        @foreach (var tuning in ViewBag.AvailableTunings)
+        {
+            <option>@tuning</option>
+        }
+    </select>
+
+    <label>Mode</label>
+    <select asp-for="Mode">
+        @foreach (var mode in ViewBag.AvailableModes)
+        {
+            <option>@mode</option>
+        }
+    </select>
+</div>
+
+<div class="harmonica-grid">
+
+    <!-- Blow Row -->
+    <div class="row-label">Blow</div>
+    @foreach (var hole in Model.Holes)
+    {
+        <div class="note-cell blow"
+             data-hole="@hole.Index"
+             data-type="blow"
+             onclick="playNote(this)">
+            <span>@hole.Blow.Note@hole.Blow.Octave</span>
+            @if (hole.Blow.IsAltered)
+            {
+                <small>*</small>
+            }
+        </div>
+    }
+
+    <!-- Draw Row -->
+    <div class="row-label">Draw</div>
+    @foreach (var hole in Model.Holes)
+    {
+        <div class="note-cell draw"
+             data-hole="@hole.Index"
+             data-type="draw"
+             onclick="playNote(this)">
+            <span>@hole.Draw.Note@hole.Draw.Octave</span>
+            @if (hole.Draw.IsAltered)
+            {
+                <small>*</small>
+            }
+        </div>
+    }
+
+</div>

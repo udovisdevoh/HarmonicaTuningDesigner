@@ -1,10 +1,52 @@
-﻿@page
-@model IndexModel
-@{
-    ViewData["Title"] = "Home page";
-}
+﻿@model HarmonicaDesignerViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="designer-container">
+
+    <!-- ========================= -->
+    <!-- GLOBAL CONTROLS -->
+    <!-- ========================= -->
+    <div class="controls">
+        <label>Harmonica Type</label>
+        <select asp-for="HarmonicaType" id="harmonicaType">
+            <option>Diatonic</option>
+            <option>Chromatic</option>
+        </select>
+
+        <label>Holes</label>
+        <select asp-for="HoleCount">
+            <option>10</option>
+            <option>12</option>
+            <option>14</option>
+            <option>16</option>
+        </select>
+    </div>
+
+    <!-- ========================= -->
+    <!-- DIATONIC MODE -->
+    <!-- ========================= -->
+    @if (Model.HarmonicaType == "Diatonic")
+    {
+        <div class="harp-section">
+            <h3>Diatonic Harmonica</h3>
+
+            @await Html.PartialAsync("_ReedPlate", Model.Diatonic)
+        </div>
+    }
+
+    <!-- ========================= -->
+    <!-- CHROMATIC MODE -->
+    <!-- ========================= -->
+    @if (Model.HarmonicaType == "Chromatic")
+    {
+        <div class="harp-section">
+            <h3>Chromatic – Slide Out</h3>
+            @await Html.PartialAsync("_ReedPlate", Model.ChromaticUpper)
+        </div>
+
+        <div class="harp-section">
+            <h3>Chromatic – Slide In</h3>
+            @await Html.PartialAsync("_ReedPlate", Model.ChromaticLower)
+        </div>
+    }
+
 </div>

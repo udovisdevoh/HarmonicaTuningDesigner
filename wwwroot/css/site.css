@@ -1,22 +1,41 @@
-html {
-  font-size: 14px;
+.designer-container {
+    padding: 1rem;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+.controls, .reedplate-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.harmonica-grid {
+    display: grid;
+    grid-template-columns: 60px repeat(auto-fit, minmax(50px, 1fr));
+    gap: 6px;
+    align-items: center;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.row-label {
+    font-weight: bold;
+    text-align: right;
 }
 
-body {
-  margin-bottom: 60px;
+.note-cell {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
 }
+
+    .note-cell.blow {
+        background: #eef;
+    }
+
+    .note-cell.draw {
+        background: #efe;
+    }
+
+    .note-cell:hover {
+        background: #ffd;
+    }
