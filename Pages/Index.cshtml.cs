@@ -1,63 +1,68 @@
 using HarmonicaTuningDesigner;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
 
-public class IndexModel : PageModel
+namespace HarmonicaTuningDesigner.Pages
 {
-    private readonly ScaleRepository _scaleRepo;
-    private readonly TuningRepository _tuningRepo;
-
-    public HarmonicaDesignerViewModel ViewModel { get; set; } = new();
-
-    public IndexModel(IWebHostEnvironment env)
+    public class IndexModel : PageModel
     {
-        var dataPath = Path.Combine(env.ContentRootPath, "Data");
+        private readonly ScaleRepository _scaleRepo;
+        private readonly TuningRepository _tuningRepo;
 
-        _scaleRepo = new ScaleRepository(Path.Combine(dataPath, "Scales.xml"));
-        _tuningRepo = new TuningRepository(Path.Combine(dataPath, "Tunings.xml"));
-    }
+        [BindProperty]
+        public HarmonicaDesignerViewModel ViewModel { get; set; } = new();
 
-    public void OnGet()
-    {
-        var scales = _scaleRepo.GetAll();
-        var tunings = _tuningRepo.GetAll();
-
-        ViewModel = new HarmonicaDesignerViewModel
+        public IndexModel(IWebHostEnvironment env)
         {
-            HarmonicaType = "Diatonic",
-            HoleCount = 10,
+            var dataPath = Path.Combine(env.ContentRootPath, "Data");
 
-            AvailableKeys = GetKeys(),
-            AvailableModes = scales.SelectMany(s => s.Modes)
-                                   .Select(m => m.Name)
-                                   .Distinct()
-                                   .ToList(),
+            _scaleRepo = new ScaleRepository(Path.Combine(dataPath, "Scales.xml"));
+            _tuningRepo = new TuningRepository(Path.Combine(dataPath, "Tunings.xml"));
+        }
 
-            AvailableTunings = tunings.Select(t => t.Name).ToList(),
-
-            Diatonic = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First()),
-            ChromaticUpper = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First()),
-            ChromaticLower = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First())
-        };
-    }
-
-    private ReedPlateViewModel CreateDefaultReedPlate(Tuning tuning, Mode mode)
-    {
-        return new ReedPlateViewModel
+        public void OnGet()
         {
-            Key = "C",
-            Tuning = tuning.Name,
-            Mode = mode.Name,
-            Holes = tuning.BaseLayout.Select(h => new HoleViewModel
+            var scales = _scaleRepo.GetAll();
+            var tunings = _tuningRepo.GetAll();
+
+            ViewModel = new HarmonicaDesignerViewModel
             {
-                Index = h.Index,
-                Blow = new NoteCell { Note = h.Blow, Octave = 4 },
-                Draw = new NoteCell { Note = h.Draw, Octave = 4 }
-            }).ToList()
+                HarmonicaType = "Diatonic",
+                HoleCount = 10,
+
+                AvailableKeys = GetKeys(),
+                AvailableModes = scales.SelectMany(s => s.Modes)
+                                       .Select(m => m.Name)
+                                       .Distinct()
+                                       .ToList(),
+
+                AvailableTunings = tunings.Select(t => t.Name).ToList(),
+
+                Diatonic = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First()),
+                ChromaticUpper = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First()),
+                ChromaticLower = CreateDefaultReedPlate(tunings.First(), scales.First().Modes.First())
+            };
+        }
+
+        private ReedPlateViewModel CreateDefaultReedPlate(Tuning tuning, Mode mode)
+        {
+            return new ReedPlateViewModel
+            {
+                Key = "C",
+                Tuning = tuning.Name,
+                Mode = mode.Name,
+                Holes = tuning.BaseLayout.Select(h => new HoleViewModel
+                {
+                    Index = h.Index,
+                    Blow = new NoteCell { Note = h.Blow, Octave = 4 },
+                    Draw = new NoteCell { Note = h.Draw, Octave = 4 }
+                }).ToList()
+            };
+        }
+
+        private static List<string> GetKeys() => new()
+        {
+            "C","C#/Db","D","D#/Eb","E","F","F#/Gb","G","G#/Ab","A","A#/Bb","B"
         };
     }
-
-    private static List<string> GetKeys() => new()
-    {
-        "C","C#/Db","D","D#/Eb","E","F","F#/Gb","G","G#/Ab","A","A#/Bb","B"
-    };
 }
