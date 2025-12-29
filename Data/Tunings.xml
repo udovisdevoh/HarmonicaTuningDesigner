@@ -221,54 +221,46 @@
     <Tuning id="spiral" name="Spiral">
         <Description>Spiral tuning</Description>
 
-        <Base holes="12">
+        <Base holes="10">
             <Hole index="1">
-                <Blow>1</Blow>
-                <Draw>2</Draw>
-            </Hole>
-            <Hole index="2">
-                <Blow>3</Blow>
-                <Draw>4</Draw>
-            </Hole>
-            <Hole index="3">
-                <Blow>5</Blow>
-                <Draw>6</Draw>
-            </Hole>
-            <Hole index="4">
-                <Blow>7</Blow>
-                <Draw>1</Draw>
-            </Hole>
-            <Hole index="5">
                 <Blow>2</Blow>
                 <Draw>3</Draw>
             </Hole>
-            <Hole index="6">
+            <Hole index="2">
                 <Blow>4</Blow>
                 <Draw>5</Draw>
             </Hole>
-            <Hole index="7">
+            <Hole index="3">
                 <Blow>6</Blow>
                 <Draw>7</Draw>
             </Hole>
-            <Hole index="8">
+            <Hole index="4">
                 <Blow>1</Blow>
                 <Draw>2</Draw>
             </Hole>
-            <Hole index="9">
+            <Hole index="5">
                 <Blow>3</Blow>
                 <Draw>4</Draw>
             </Hole>
-            <Hole index="10">
+            <Hole index="6">
                 <Blow>5</Blow>
                 <Draw>6</Draw>
             </Hole>
-            <Hole index="11">
+            <Hole index="7">
                 <Blow>7</Blow>
                 <Draw>1</Draw>
             </Hole>
-            <Hole index="12">
+            <Hole index="8">
                 <Blow>2</Blow>
                 <Draw>3</Draw>
+            </Hole>
+            <Hole index="9">
+                <Blow>4</Blow>
+                <Draw>5</Draw>
+            </Hole>
+            <Hole index="10">
+                <Blow>6</Blow>
+                <Draw>7</Draw>
             </Hole>
         </Base>
 
