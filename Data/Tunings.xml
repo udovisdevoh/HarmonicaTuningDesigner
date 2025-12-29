@@ -53,8 +53,7 @@
 
         <Expansions>
             <Expansion holes="12">
-                <Prepend />
-                <Append>
+                <Prepend>
                     <Hole>
                         <Blow>3</Blow>
                         <Draw>5</Draw>
@@ -63,7 +62,8 @@
                         <Blow>5</Blow>
                         <Draw>7</Draw>
                     </Hole>
-                </Append>
+                </Prepend>
+                <Append />
             </Expansion>
 
             <Expansion holes="14">
