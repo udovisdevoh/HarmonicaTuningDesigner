@@ -147,17 +147,44 @@
 
         <Expansions>
             <Expansion holes="12">
-                <Prepend />
-                <Append>
+                <Prepend>
+                    <Hole>
+                        <Blow>4</Blow>
+                        <Draw>5</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>6</Blow>
+                        <Draw>7</Draw>
+                    </Hole>
+                </Prepend>
+                <Append />
+            </Expansion>
+
+            <Expansion holes="14">
+                <Prepend>
+                    <Hole>
+                        <Blow>6</Blow>
+                        <Draw>1</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>2</Blow>
+                        <Draw>3</Draw>
+                    </Hole>
+                </Prepend>
+            </Expansion>
+
+            <Expansion holes="16">
+                <Prepend>
+                    <Hole>
+                        <Blow>1</Blow>
+                        <Draw>2</Draw>
+                    </Hole>
                     <Hole>
                         <Blow>3</Blow>
                         <Draw>5</Draw>
                     </Hole>
-                    <Hole>
-                        <Blow>5</Blow>
-                        <Draw>7</Draw>
-                    </Hole>
-                </Append>
+                </Prepend>
+                <Append />
             </Expansion>
         </Expansions>
     </Tuning>
