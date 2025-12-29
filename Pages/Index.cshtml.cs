@@ -218,14 +218,35 @@ namespace HarmonicaTuningDesigner.Pages
 
         private int ComputeBaseMidiFromDegreeOrNote(string degreeStr, int keySemitone, List<int> intervals, int middleCMidi)
         {
-            if (int.TryParse(degreeStr, out var degree))
+            if (string.IsNullOrWhiteSpace(degreeStr)) return middleCMidi + keySemitone;
+
+            var s = degreeStr.Trim();
+
+            // Support accidental prefixes like '#4' or 'b4' or '?4'/'?4'
+            int accidental = 0;
+            if (s.StartsWith("#") || s.StartsWith("?"))
+            {
+                accidental = 1;
+                s = s.Substring(1);
+            }
+            else if (s.StartsWith("b") || s.StartsWith("?"))
+            {
+                accidental = -1;
+                s = s.Substring(1);
+            }
+
+            if (int.TryParse(s, out var degree))
             {
                 var idx = Math.Max(0, degree - 1);
-                var interval = intervals[idx % intervals.Count];
-                var midi = middleCMidi + keySemitone + interval;
+                var interval = intervals[idx % intervals.Count] + accidental;
+                // If accidental pushes interval outside 0-11, adjust octave accordingly
+                var intervalMod = ((interval % 12) + 12) % 12;
+                var octaveOffset = (int)Math.Floor((double)interval / 12);
+                var midi = middleCMidi + keySemitone + intervalMod + octaveOffset * 12;
                 return midi;
             }
 
+            // fallback: try to parse literal note name possibly with octave
             var transposed = TransposeNoteName(degreeStr, keySemitone);
             var sem = NoteNameToSemitone(transposed.Name);
             var midiFromName = (transposed.Octave + 1) * 12 + sem;

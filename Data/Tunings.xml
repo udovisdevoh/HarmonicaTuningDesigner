@@ -189,7 +189,7 @@
             </Hole>
             <Hole index="5">
                 <Blow>3</Blow>
-                <Draw>5</Draw>
+                <Draw>#4</Draw>
             </Hole>
             <Hole index="6">
                 <Blow>5</Blow>
@@ -201,7 +201,7 @@
             </Hole>
             <Hole index="8">
                 <Blow>3</Blow>
-                <Draw>6</Draw>
+                <Draw>2</Draw>
             </Hole>
             <Hole index="9">
                 <Blow>5</Blow>
@@ -209,7 +209,7 @@
             </Hole>
             <Hole index="10">
                 <Blow>1</Blow>
-                <Draw>2</Draw>
+                <Draw>6</Draw>
             </Hole>
         </Base>
     </Tuning>
