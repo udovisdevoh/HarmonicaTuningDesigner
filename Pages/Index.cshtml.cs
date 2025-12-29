@@ -136,36 +136,54 @@ namespace HarmonicaTuningDesigner.Pages
         private List<HoleViewModel> BuildHolesFromTuning(Tuning tuning, int holes, string key, Mode mode)
         {
             var baseLayout = tuning.BaseLayout;
-            // Determine semitone of target key (use first mapping if ambiguous like C#/Db)
             var keySemitone = NoteNameToSemitone(key);
-
-            // MIDI reference: C4 = 60
             var middleC = 60;
 
             var list = new List<HoleViewModel>();
-            int prevBlowMidi = int.MinValue / 2;
-            int prevDrawMidi = int.MinValue / 2;
 
             var intervals = mode?.Intervals ?? new List<int> { 0, 2, 4, 5, 7, 9, 11 };
 
+            // Blow: group every 3 holes
             for (int i = 0; i < Math.Min(holes, baseLayout.Count); i++)
             {
                 var h = baseLayout[i];
 
-                int blowMidi = ComputeBaseMidiFromDegreeOrNote(h.Blow, keySemitone, intervals, middleC);
-                // make blow progress upward relative to previous
-                while (blowMidi <= prevBlowMidi)
-                {
-                    blowMidi += 12;
-                }
-                prevBlowMidi = blowMidi;
+                int baseBlowMidi = ComputeBaseMidiFromDegreeOrNote(h.Blow, keySemitone, intervals, middleC);
+                int blowGroup = i / 3; // groups of 3 holes
+                int blowMidi = baseBlowMidi + blowGroup * 12;
 
-                int drawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
-                while (drawMidi <= prevDrawMidi)
+                int drawMidi;
+
+                // Special-case Richter 10-hole draw grouping to match expected layout
+                if (string.Equals(tuning.Id, "richter", StringComparison.OrdinalIgnoreCase) && holes == 10)
                 {
-                    drawMidi += 12;
+                    int drawGroup;
+                    if (i <= 2) drawGroup = 0; // holes 1-3
+                    else if (i <= 6) drawGroup = 1; // holes 4-7
+                    else drawGroup = 2; // holes 8-10
+
+                    int baseDrawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
+                    drawMidi = baseDrawMidi + drawGroup * 12;
                 }
-                prevDrawMidi = drawMidi;
+                else
+                {
+                    // General draw handling: pick smallest octave so draw is >= previous draw and reasonably close to blow
+                    int baseDrawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
+
+                    // Start with same group as blow
+                    drawMidi = baseDrawMidi + (i / 3) * 12;
+
+                    // Move draw up until it's >= blow - 6 semitones (so draw sits near blow)
+                    while (drawMidi < blowMidi - 6) drawMidi += 12;
+
+                    // ensure non-decreasing across holes
+                    if (list.Count > 0)
+                    {
+                        var prevDraw = list.Last().Draw;
+                        var prevDrawMidi = (prevDraw.Octave + 1) * 12 + NoteNameToSemitone(prevDraw.Note);
+                        while (drawMidi <= prevDrawMidi) drawMidi += 12;
+                    }
+                }
 
                 var blowName = SemitoneToName(blowMidi % 12);
                 var drawName = SemitoneToName(drawMidi % 12);
@@ -180,7 +198,7 @@ namespace HarmonicaTuningDesigner.Pages
                 });
             }
 
-            // If tuning has fewer baseLayout items than requested holes, pad by repeating last
+            // Pad if needed
             if (list.Count < holes && list.Count > 0)
             {
                 var last = list.Last();
@@ -208,7 +226,6 @@ namespace HarmonicaTuningDesigner.Pages
                 return midi;
             }
 
-            // fallback: try to parse literal note name possibly with octave
             var transposed = TransposeNoteName(degreeStr, keySemitone);
             var sem = NoteNameToSemitone(transposed.Name);
             var midiFromName = (transposed.Octave + 1) * 12 + sem;
@@ -226,7 +243,6 @@ namespace HarmonicaTuningDesigner.Pages
             }
             else if (plate.Holes.Count < desired)
             {
-                // Pad with empty notes using the same note/octave as last entry
                 var last = plate.Holes.Last();
                 for (int i = plate.Holes.Count + 1; i <= desired; i++)
                 {
@@ -259,14 +275,12 @@ namespace HarmonicaTuningDesigner.Pages
             };
         }
 
-        // Helpers for note name/semitone mapping and transposition
+        // Helpers
         private int NoteNameToSemitone(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return 0;
-            // Normalize and prefer sharp name when a slash exists
             var n = name.Replace("\u00A0", "").Trim();
             if (n.Contains('/')) n = n.Split('/')[0];
-            // Map
             return n switch
             {
                 "C" => 0,
@@ -292,13 +306,10 @@ namespace HarmonicaTuningDesigner.Pages
 
         private (string Name, int Octave) TransposeNoteName(string sourceName, int targetKeySemitone)
         {
-            // SourceName may be like "C" or "C#" or "D". Treat as base in C (semitone of sourceName)
             if (string.IsNullOrWhiteSpace(sourceName)) return (string.Empty, 4);
             var s = sourceName.Trim();
-            // If source includes octave like C4, try to parse
             int sourceOctave = 4;
             string notePart = s;
-            // Extract trailing digits as octave
             var digits = new string(s.Reverse().TakeWhile(char.IsDigit).Reverse().ToArray());
             if (!string.IsNullOrEmpty(digits))
             {
@@ -310,20 +321,13 @@ namespace HarmonicaTuningDesigner.Pages
             }
 
             if (notePart.Contains('/')) notePart = notePart.Split('/')[0];
-
             var sourceSem = NoteNameToSemitone(notePart);
-            // Source assumed to be relative to C (0). To get final semitone: (sourceSem + shift) % 12
-            var shift = (targetKeySemitone - 0 + 12) % 12; // base is C
+            var shift = (targetKeySemitone - 0 + 12) % 12;
             var finalSem = (sourceSem + shift) % 12;
-
-            // Adjust octave for overflow
-            int octaveOffset = (sourceSem + shift) / 12; // integer division
-            // But since sourceSem+shift < 24 we can compute properly when negative
+            int octaveOffset = (sourceSem + shift) / 12;
             if (sourceSem + shift < 0) octaveOffset = -1;
-
             var finalOctave = sourceOctave + octaveOffset;
             var finalName = SemitoneToName(finalSem);
-
             return (finalName, finalOctave);
         }
 

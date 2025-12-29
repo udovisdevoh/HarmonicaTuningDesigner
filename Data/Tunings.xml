@@ -39,7 +39,7 @@
             </Hole>
             <Hole index="8">
                 <Blow>3</Blow>
-                <Draw>6</Draw>
+                <Draw>2</Draw>
             </Hole>
             <Hole index="9">
                 <Blow>5</Blow>
@@ -47,7 +47,7 @@
             </Hole>
             <Hole index="10">
                 <Blow>1</Blow>
-                <Draw>2</Draw>
+                <Draw>6</Draw>
             </Hole>
         </Base>
 
@@ -101,7 +101,7 @@
     <!-- ====================================================== -->
 
     <Tuning id="paddy_richter" name="Paddy Richter">
-        <Description>Richter with raised 3 draw</Description>
+        <Description>Richter with 6th on blow 3</Description>
 
         <Base holes="10">
             <Hole index="1">
@@ -113,8 +113,8 @@
                 <Draw>5</Draw>
             </Hole>
             <Hole index="3">
-                <Blow>5</Blow>
-                <Draw>6</Draw>
+                <Blow>6</Blow>
+                <Draw>7</Draw>
             </Hole>
             <Hole index="4">
                 <Blow>1</Blow>
@@ -134,7 +134,7 @@
             </Hole>
             <Hole index="8">
                 <Blow>3</Blow>
-                <Draw>6</Draw>
+                <Draw>2</Draw>
             </Hole>
             <Hole index="9">
                 <Blow>5</Blow>
@@ -142,7 +142,7 @@
             </Hole>
             <Hole index="10">
                 <Blow>1</Blow>
-                <Draw>2</Draw>
+                <Draw>6</Draw>
             </Hole>
         </Base>
 
