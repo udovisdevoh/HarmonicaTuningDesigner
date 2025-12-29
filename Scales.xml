@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Scales version="1.0">
+
+    <Scale id="major" name="Major Scale">
+        <Description>Standard diatonic major scale</Description>
+        <Intervals>0 2 4 5 7 9 11</Intervals>
+
+        <Modes>
+            <Mode id="ionian" name="Ionian" degree="1">
+                <Intervals>0 2 4 5 7 9 11</Intervals>
+            </Mode>
+
+            <Mode id="dorian" name="Dorian" degree="2">
+                <Intervals>0 2 3 5 7 9 10</Intervals>
+            </Mode>
+
+            <Mode id="phrygian" name="Phrygian" degree="3">
+                <Intervals>0 1 3 5 7 8 10</Intervals>
+            </Mode>
+
+            <Mode id="lydian" name="Lydian" degree="4">
+                <Intervals>0 2 4 6 7 9 11</Intervals>
+            </Mode>
+
+            <Mode id="mixolydian" name="Mixolydian" degree="5">
+                <Intervals>0 2 4 5 7 9 10</Intervals>
+            </Mode>
+
+            <Mode id="aeolian" name="Aeolian" degree="6">
+                <Intervals>0 2 3 5 7 8 10</Intervals>
+            </Mode>
+
+            <Mode id="locrian" name="Locrian" degree="7">
+                <Intervals>0 1 3 5 6 8 10</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="harmonic_minor" name="Harmonic Minor">
+        <Intervals>0 2 3 5 7 8 11</Intervals>
+
+        <Modes>
+            <Mode id="harmonic_minor" name="Harmonic Minor" degree="1">
+                <Intervals>0 2 3 5 7 8 11</Intervals>
+            </Mode>
+
+            <Mode id="locrian_nat6" name="Locrian ♮6" degree="2">
+                <Intervals>0 1 3 5 6 9 10</Intervals>
+            </Mode>
+
+            <Mode id="ionian_aug" name="Ionian ♯5" degree="3">
+                <Intervals>0 2 4 5 8 9 11</Intervals>
+            </Mode>
+
+            <Mode id="dorian_sharp4" name="Dorian ♯4" degree="4">
+                <Intervals>0 2 3 6 7 9 10</Intervals>
+            </Mode>
+
+            <Mode id="phrygian_dom" name="Phrygian Dominant" degree="5">
+                <Intervals>0 1 4 5 7 8 10</Intervals>
+            </Mode>
+
+            <Mode id="lydian_sharp2" name="Lydian ♯2" degree="6">
+                <Intervals>0 3 4 6 7 9 11</Intervals>
+            </Mode>
+
+            <Mode id="ultralocrian" name="Ultralocrian" degree="7">
+                <Intervals>0 1 3 4 6 8 9</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="melodic_minor" name="Melodic Minor">
+        <Intervals>0 2 3 5 7 9 11</Intervals>
+
+        <Modes>
+            <Mode id="melodic_minor" name="Melodic Minor" degree="1">
+                <Intervals>0 2 3 5 7 9 11</Intervals>
+            </Mode>
+
+            <Mode id="dorian_b2" name="Dorian ♭2" degree="2">
+                <Intervals>0 1 3 5 7 9 10</Intervals>
+            </Mode>
+
+            <Mode id="lydian_aug" name="Lydian Augmented" degree="3">
+                <Intervals>0 2 4 6 8 9 11</Intervals>
+            </Mode>
+
+            <Mode id="lydian_dom" name="Lydian Dominant" degree="4">
+                <Intervals>0 2 4 6 7 9 10</Intervals>
+            </Mode>
+
+            <Mode id="mixolydian_b6" name="Mixolydian ♭6" degree="5">
+                <Intervals>0 2 4 5 7 8 10</Intervals>
+            </Mode>
+
+            <Mode id="locrian_nat2" name="Locrian ♮2" degree="6">
+                <Intervals>0 2 3 5 6 8 10</Intervals>
+            </Mode>
+
+            <Mode id="altered" name="Altered (Super Locrian)" degree="7">
+                <Intervals>0 1 3 4 6 8 10</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="double_harmonic" name="Double Harmonic">
+        <Intervals>0 1 4 5 7 8 11</Intervals>
+
+        <Modes>
+            <Mode id="double_harmonic" name="Double Harmonic Major" degree="1">
+                <Intervals>0 1 4 5 7 8 11</Intervals>
+            </Mode>
+
+            <Mode id="lydian_sharp2_sharp6" name="Lydian ♯2 ♯6" degree="2">
+                <Intervals>0 3 4 6 7 10 11</Intervals>
+            </Mode>
+
+            <Mode id="ultra_phrygian" name="Ultra Phrygian" degree="3">
+                <Intervals>0 1 3 4 7 8 9</Intervals>
+            </Mode>
+
+            <Mode id="hungarian_minor" name="Hungarian Minor" degree="4">
+                <Intervals>0 2 3 6 7 8 11</Intervals>
+            </Mode>
+
+            <Mode id="oriental" name="Oriental" degree="5">
+                <Intervals>0 1 4 5 6 9 10</Intervals>
+            </Mode>
+
+            <Mode id="ionian_aug_sharp2" name="Ionian Augmented ♯2" degree="6">
+                <Intervals>0 3 4 5 8 9 11</Intervals>
+            </Mode>
+
+            <Mode id="locrian_dbl_flat3_dbl_flat7" name="Locrian ♭♭3 ♭♭7" degree="7">
+                <Intervals>0 1 2 5 6 8 9</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="harmonic_major" name="Harmonic Major">
+        <Intervals>0 2 4 5 7 8 11</Intervals>
+
+        <Modes>
+            <Mode id="harmonic_major" name="Harmonic Major" degree="1">
+                <Intervals>0 2 4 5 7 8 11</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="neapolitan_major" name="Neapolitan Major">
+        <Intervals>0 1 3 5 7 9 11</Intervals>
+
+        <Modes>
+            <Mode id="neapolitan_major" name="Neapolitan Major" degree="1">
+                <Intervals>0 1 3 5 7 9 11</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="neapolitan_minor" name="Neapolitan Minor">
+        <Intervals>0 1 3 5 7 8 11</Intervals>
+
+        <Modes>
+            <Mode id="neapolitan_minor" name="Neapolitan Minor" degree="1">
+                <Intervals>0 1 3 5 7 8 11</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+    <!-- =============================== -->
+
+    <Scale id="hungarian_major" name="Hungarian Major">
+        <Intervals>0 3 4 6 7 9 10</Intervals>
+
+        <Modes>
+            <Mode id="hungarian_major" name="Hungarian Major" degree="1">
+                <Intervals>0 3 4 6 7 9 10</Intervals>
+            </Mode>
+        </Modes>
+    </Scale>
+
+</Scales>
