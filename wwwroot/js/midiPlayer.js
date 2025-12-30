@@ -142,6 +142,50 @@ function playProgression(stylizedMidiEvents, loopPlayback, totalProgressionDurat
 }
 
 /**
+ * Plays a single MIDI note using the loaded instrument players. Exposed for single-note playback from UI.
+ * @param {number} midi - MIDI note number (0-127)
+ * @param {number} [duration=0.6] - Duration in seconds
+ * @param {number} [program=PIANO_PROGRAM] - MIDI program to choose player (PIANO_PROGRAM or STRING_ENSEMBLE_PROGRAM)
+ * @returns {Promise<boolean>} - Resolves true if note played, false otherwise
+ */
+async function playSingleNote(midi, duration = 0.6, program = PIANO_PROGRAM) {
+    try {
+        initializeAudioContext();
+
+        // Attempt to load instruments if not already loaded. We pass nulls for DOM elements.
+        const ok = await loadInstruments(null, null);
+        if (!ok) return false;
+
+        const safePitch = Math.max(0, Math.min(127, Math.round(midi)));
+        let playerToUse = pianoPlayer;
+        let gainToApply = PIANO_GAIN;
+
+        if (program === STRING_ENSEMBLE_PROGRAM) {
+            playerToUse = stringPlayer;
+            gainToApply = STRING_GAIN;
+        }
+
+        if (!playerToUse) {
+            console.error('Requested player not available');
+            return false;
+        }
+
+        // Use current audio time to schedule immediately
+        const startTime = audioContext.currentTime + 0.01;
+        playerToUse.play(safePitch, startTime, { duration: duration, gain: gainToApply });
+
+        // Set playing flag briefly
+        isPlayingFlag = true;
+        setTimeout(() => { isPlayingFlag = false; }, duration * 1000 + 50);
+
+        return true;
+    } catch (err) {
+        console.error('Error in playSingleNote', err);
+        return false;
+    }
+}
+
+/**
  * Stops all active notes and clears any pending loop timeouts.
  * @param {boolean} clearPlayingFlag - If true, also resets the isPlayingFlag. Useful for manual stop button.
  */
@@ -171,5 +215,6 @@ window.midiPlayer = {
     loadInstruments: loadInstruments,
     playProgression: playProgression,
     stopAllNotes: stopAllNotes,
-    isPlaying: isPlaying // NEW: Expose isPlaying status
+    isPlaying: isPlaying, // NEW: Expose isPlaying status
+    playSingleNote: playSingleNote // NEW: Expose single-note playback
 };

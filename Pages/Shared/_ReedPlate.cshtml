@@ -43,6 +43,8 @@
             <div class="note-cell blow"
                  data-hole="@hole.Index"
                  data-type="blow"
+                 data-note="@(hole.Blow?.Note ?? string.Empty)"
+                 data-octave="@(hole.Blow?.Octave.ToString() ?? string.Empty)"
                  onclick="playNote(this)">
                 <span>@(FormatNote(hole.Blow))</span>
                 @if (hole.Blow.IsAltered)
@@ -54,6 +56,8 @@
             <div class="note-cell draw"
                  data-hole="@hole.Index"
                  data-type="draw"
+                 data-note="@(hole.Draw?.Note ?? string.Empty)"
+                 data-octave="@(hole.Draw?.Octave.ToString() ?? string.Empty)"
                  onclick="playNote(this)">
                 <span>@(FormatNote(hole.Draw))</span>
                 @if (hole.Draw.IsAltered)
