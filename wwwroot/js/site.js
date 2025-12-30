@@ -112,7 +112,10 @@
                 return;
             }
 
-            const midi = (octave + 1) * 12 + semitone;
+            const midi = (octave - 1) * 12 + semitone;
+
+            while (midi > 127) midi -= 12;
+            while (midi < 0) midi += 12;
 
             // Choose instrument by cell type: draw -> strings, blow -> piano
             const type = (cell.dataset.type || '').toLowerCase();
