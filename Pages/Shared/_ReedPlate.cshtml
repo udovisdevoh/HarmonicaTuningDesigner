@@ -32,6 +32,8 @@
     @foreach (var hole in Model.Holes)
     {
         <div class="hole-column">
+            <div class="hole-id">@hole.Index</div>
+
             <div class="note-cell blow"
                  data-hole="@hole.Index"
                  data-type="blow"
