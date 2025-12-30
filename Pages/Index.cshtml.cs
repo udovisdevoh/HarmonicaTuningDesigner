@@ -118,11 +118,27 @@ namespace HarmonicaTuningDesigner.Pages
             var newMode = parentScale.Modes.FirstOrDefault(m => m.Degree == newDegree) ?? currentMode;
 
             plate.Mode = newMode.Name;
-            plate.Key = SemitoneToName(newKeySem);
+
+            // Map semitone to the key label used in the AvailableKeys list (e.g., "F#/Gb") so the select has a matching option
+            plate.Key = MapSemitoneToAvailableKey(newKeySem);
 
             // Remove posted ModelState so updated model values are rendered by Razor helpers
             ModelState.Remove($"ViewModel.{plateId}.Key");
             ModelState.Remove($"ViewModel.{plateId}.Mode");
+        }
+
+        private string MapSemitoneToAvailableKey(int semitone)
+        {
+            var baseName = SemitoneToName(semitone);
+            var keys = ViewModel.AvailableKeys ?? GetKeys();
+
+            // Try to find an entry that contains the base name (handles combined entries like "F#/Gb")
+            var match = keys.FirstOrDefault(k => k.Split('/').Any(p => p.Equals(baseName, StringComparison.OrdinalIgnoreCase)));
+            if (!string.IsNullOrEmpty(match)) return match;
+
+            // Fallback: if an exact match exists return it, otherwise return base name
+            var exact = keys.FirstOrDefault(k => k.Equals(baseName, StringComparison.OrdinalIgnoreCase));
+            return exact ?? baseName;
         }
 
         private void InitializeViewModel()
