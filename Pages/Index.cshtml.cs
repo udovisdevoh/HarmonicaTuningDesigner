@@ -84,46 +84,78 @@ namespace HarmonicaTuningDesigner.Pages
             // Diatonic
             if (ViewModel.Diatonic == null)
             {
-                var t = tunings.First();
-                var m = scales.First().Modes.First();
-                ViewModel.Diatonic = CreateDefaultReedPlate(t, m, ViewModel.HoleCount);
+                // default to C Ionian Richter and compute actual notes
+                var t = tunings.FirstOrDefault(x => x.Name == "Richter") ?? tunings.First();
+                var m = scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
+                var holes = BuildHolesFromTuning(t, ViewModel.HoleCount, "C", m);
+                ViewModel.Diatonic = new ReedPlateViewModel
+                {
+                    Key = "C",
+                    Tuning = t.Name,
+                    Mode = m.Name,
+                    Holes = holes
+                };
             }
             else
             {
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.Diatonic.Tuning) ?? tunings.First();
                 var key = ViewModel.Diatonic.Key ?? "C";
-                var mode = FindModeByName(scales, ViewModel.Diatonic.Mode) ?? scales.First().Modes.First();
+                var mode = FindModeByName(scales, ViewModel.Diatonic.Mode) ?? scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
                 ViewModel.Diatonic.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+                // ensure tuning/key/mode values are set
+                ViewModel.Diatonic.Tuning = t.Name;
+                ViewModel.Diatonic.Key = key;
+                ViewModel.Diatonic.Mode = mode.Name;
             }
 
             // ChromaticUpper
             if (ViewModel.ChromaticUpper == null)
             {
-                var t = tunings.First();
-                var m = scales.First().Modes.First();
-                ViewModel.ChromaticUpper = CreateDefaultReedPlate(t, m, ViewModel.HoleCount);
+                var t = tunings.FirstOrDefault(x => x.Name == "Richter") ?? tunings.First();
+                var m = scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
+                var holes = BuildHolesFromTuning(t, ViewModel.HoleCount, "C", m);
+                ViewModel.ChromaticUpper = new ReedPlateViewModel
+                {
+                    Key = "C",
+                    Tuning = t.Name,
+                    Mode = m.Name,
+                    Holes = holes
+                };
             }
             else
             {
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.ChromaticUpper.Tuning) ?? tunings.First();
                 var key = ViewModel.ChromaticUpper.Key ?? "C";
-                var mode = FindModeByName(scales, ViewModel.ChromaticUpper.Mode) ?? scales.First().Modes.First();
+                var mode = FindModeByName(scales, ViewModel.ChromaticUpper.Mode) ?? scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
                 ViewModel.ChromaticUpper.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+                ViewModel.ChromaticUpper.Tuning = t.Name;
+                ViewModel.ChromaticUpper.Key = key;
+                ViewModel.ChromaticUpper.Mode = mode.Name;
             }
 
             // ChromaticLower
             if (ViewModel.ChromaticLower == null)
             {
-                var t = tunings.First();
-                var m = scales.First().Modes.First();
-                ViewModel.ChromaticLower = CreateDefaultReedPlate(t, m, ViewModel.HoleCount);
+                var t = tunings.FirstOrDefault(x => x.Name == "Richter") ?? tunings.First();
+                var m = scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
+                var holes = BuildHolesFromTuning(t, ViewModel.HoleCount, "C", m);
+                ViewModel.ChromaticLower = new ReedPlateViewModel
+                {
+                    Key = "C",
+                    Tuning = t.Name,
+                    Mode = m.Name,
+                    Holes = holes
+                };
             }
             else
             {
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.ChromaticLower.Tuning) ?? tunings.First();
                 var key = ViewModel.ChromaticLower.Key ?? "C";
-                var mode = FindModeByName(scales, ViewModel.ChromaticLower.Mode) ?? scales.First().Modes.First();
+                var mode = FindModeByName(scales, ViewModel.ChromaticLower.Mode) ?? scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
                 ViewModel.ChromaticLower.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+                ViewModel.ChromaticLower.Tuning = t.Name;
+                ViewModel.ChromaticLower.Key = key;
+                ViewModel.ChromaticLower.Mode = mode.Name;
             }
         }
 
