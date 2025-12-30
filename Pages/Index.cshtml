@@ -114,18 +114,28 @@
     <div class="chords-global" style="margin-top:1rem;">
         <h3>Detected Chords</h3>
         @{
-            var chords = new List<ChordMatch>();
+            // Aggregate chords from relevant plates
+            var raw = new List<ChordMatch>();
             if (Model.ViewModel.HarmonicaType == "Chromatic")
             {
-                if (Model.ViewModel.ChromaticUpper?.Chords != null) chords.AddRange(Model.ViewModel.ChromaticUpper.Chords);
-                if (Model.ViewModel.ChromaticLower?.Chords != null) chords.AddRange(Model.ViewModel.ChromaticLower.Chords);
+                if (Model.ViewModel.ChromaticUpper?.Chords != null) raw.AddRange(Model.ViewModel.ChromaticUpper.Chords);
+                if (Model.ViewModel.ChromaticLower?.Chords != null) raw.AddRange(Model.ViewModel.ChromaticLower.Chords);
             }
             else
             {
-                if (Model.ViewModel.Diatonic?.Chords != null) chords.AddRange(Model.ViewModel.Diatonic.Chords);
+                if (Model.ViewModel.Diatonic?.Chords != null) raw.AddRange(Model.ViewModel.Diatonic.Chords);
             }
 
-            chords = chords.OrderBy(c => c.StartHoleIndex).ToList();
+            // Deduplicate by chord type + root (keep best representative)
+            var chords = raw
+                .GroupBy(c => (c.Type, c.Root))
+                .Select(g => g
+                    .OrderBy(c => (c.EndHoleIndex - c.StartHoleIndex)) // prefer shortest span
+                    .ThenByDescending(c => c.IsBlow) // prefer blow if tie
+                    .ThenBy(c => c.StartHoleIndex) // then earliest
+                    .First())
+                .OrderBy(c => c.StartHoleIndex)
+                .ToList();
         }
 
         @if (!chords.Any())
