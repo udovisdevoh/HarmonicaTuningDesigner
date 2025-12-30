@@ -36,8 +36,7 @@
                 {
                     ["AvailableKeys"] = Model.ViewModel.AvailableKeys,
                     ["AvailableTunings"] = Model.ViewModel.AvailableTunings,
-                    ["AvailableModes"] = Model.ViewModel.AvailableModes,
-                    ["AvailableNotes"] = Model.ViewModel.AvailableNotes
+                    ["AvailableModes"] = Model.ViewModel.AvailableModes
                 };
                 vd.TemplateInfo.HtmlFieldPrefix = "ViewModel.Diatonic";
             }
@@ -57,8 +56,7 @@
                 {
                     ["AvailableKeys"] = Model.ViewModel.AvailableKeys,
                     ["AvailableTunings"] = Model.ViewModel.AvailableTunings,
-                    ["AvailableModes"] = Model.ViewModel.AvailableModes,
-                    ["AvailableNotes"] = Model.ViewModel.AvailableNotes
+                    ["AvailableModes"] = Model.ViewModel.AvailableModes
                 };
                 vdOut.TemplateInfo.HtmlFieldPrefix = "ViewModel.ChromaticUpper";
             }
@@ -72,14 +70,21 @@
                 {
                     ["AvailableKeys"] = Model.ViewModel.AvailableKeys,
                     ["AvailableTunings"] = Model.ViewModel.AvailableTunings,
-                    ["AvailableModes"] = Model.ViewModel.AvailableModes,
-                    ["AvailableNotes"] = Model.ViewModel.AvailableNotes
+                    ["AvailableModes"] = Model.ViewModel.AvailableModes
                 };
                 vdIn.TemplateInfo.HtmlFieldPrefix = "ViewModel.ChromaticLower";
             }
             @await Html.PartialAsync("_ReedPlate", Model.ViewModel.ChromaticLower, vdIn)
         </div>
     }
+
+    <!-- Single combined available notes list -->
+    <div class="available-notes-global">
+        @{
+            var notes = Model.ViewModel.AvailableNotes ?? new List<string>();
+        }
+        @await Html.PartialAsync("_AvailableNotes", notes)
+    </div>
 
 </div>
 </form>
