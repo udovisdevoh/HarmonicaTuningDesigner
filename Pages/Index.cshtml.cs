@@ -202,6 +202,11 @@ namespace HarmonicaTuningDesigner.Pages
 
             var ordered = set.OrderBy(x => x).Select(x => SemitoneToName(x)).ToList();
             ViewModel.AvailableNotes = ordered;
+
+            // Also compute missing notes (those semitones not present 0..11)
+            var all = Enumerable.Range(0, 12).ToList();
+            var missing = all.Where(a => !set.Contains(a)).OrderBy(x => x).Select(x => SemitoneToName(x)).ToList();
+            ViewModel.MissingNotes = missing;
         }
 
         private Mode FindModeByName(IReadOnlyList<Scale> scales, string modeName)

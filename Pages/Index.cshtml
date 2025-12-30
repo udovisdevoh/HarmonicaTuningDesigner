@@ -86,6 +86,30 @@
         @await Html.PartialAsync("_AvailableNotes", notes)
     </div>
 
+    <!-- Missing notes list -->
+    <div class="missing-notes-global" style="margin-top:1rem;">
+        <h3>Missing Notes</h3>
+        @{ var missing = Model.ViewModel.MissingNotes ?? new List<string>(); }
+        @if (!missing.Any())
+        {
+            <div>None — instrument contains all 12 semitones</div>
+        }
+        else
+        {
+            <table class="available-notes-table">
+                <thead>
+                    <tr><th>Note</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var note in missing)
+                    {
+                        <tr><td>@note</td></tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
 </div>
 </form>
 
