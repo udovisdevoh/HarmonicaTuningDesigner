@@ -60,6 +60,9 @@ namespace HarmonicaTuningDesigner.Pages
             AdjustHoleCounts(ViewModel.ChromaticUpper);
             AdjustHoleCounts(ViewModel.ChromaticLower);
 
+            // Compute available notes for UI
+            ComputeAvailableNotes();
+
             return Page();
         }
 
@@ -157,6 +160,48 @@ namespace HarmonicaTuningDesigner.Pages
                 ViewModel.ChromaticLower.Key = key;
                 ViewModel.ChromaticLower.Mode = mode.Name;
             }
+
+            // Compute available notes for UI
+            ComputeAvailableNotes();
+        }
+
+        private void ComputeAvailableNotes()
+        {
+            var set = new HashSet<int>();
+
+            if (ViewModel.HarmonicaType == "Chromatic")
+            {
+                if (ViewModel.ChromaticUpper?.Holes != null)
+                {
+                    foreach (var h in ViewModel.ChromaticUpper.Holes)
+                    {
+                        set.Add(NoteNameToSemitone(h.Blow.Note));
+                        set.Add(NoteNameToSemitone(h.Draw.Note));
+                    }
+                }
+                if (ViewModel.ChromaticLower?.Holes != null)
+                {
+                    foreach (var h in ViewModel.ChromaticLower.Holes)
+                    {
+                        set.Add(NoteNameToSemitone(h.Blow.Note));
+                        set.Add(NoteNameToSemitone(h.Draw.Note));
+                    }
+                }
+            }
+            else
+            {
+                if (ViewModel.Diatonic?.Holes != null)
+                {
+                    foreach (var h in ViewModel.Diatonic.Holes)
+                    {
+                        set.Add(NoteNameToSemitone(h.Blow.Note));
+                        set.Add(NoteNameToSemitone(h.Draw.Note));
+                    }
+                }
+            }
+
+            var ordered = set.OrderBy(x => x).Select(x => SemitoneToName(x)).ToList();
+            ViewModel.AvailableNotes = ordered;
         }
 
         private Mode FindModeByName(IReadOnlyList<Scale> scales, string modeName)

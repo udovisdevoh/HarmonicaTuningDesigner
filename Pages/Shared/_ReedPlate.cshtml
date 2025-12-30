@@ -60,6 +60,15 @@
 
 </div>
 
+<!-- Render available notes partial for this reed plate -->
+@{ 
+    var available = ViewData["AvailableNotes"] as List<string>;
+}
+@if (available != null && available.Any())
+{
+    @await Html.PartialAsync("_AvailableNotes", available)
+}
+
 @functions {
     private string FormatNote(NoteCell cell)
     {

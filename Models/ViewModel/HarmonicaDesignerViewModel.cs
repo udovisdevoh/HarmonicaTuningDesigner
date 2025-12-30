@@ -9,6 +9,9 @@
         public List<string> AvailableTunings { get; set; }
         public List<string> AvailableModes { get; set; }
 
+        // New: list of available note names shown in the UI
+        public List<string> AvailableNotes { get; set; }
+
         public ReedPlateViewModel Diatonic { get; set; }
         public ReedPlateViewModel ChromaticUpper { get; set; }
         public ReedPlateViewModel ChromaticLower { get; set; }

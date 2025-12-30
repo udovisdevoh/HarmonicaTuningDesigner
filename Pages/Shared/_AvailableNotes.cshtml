@@ -1,0 +1,34 @@
+@model List<string>
+
+<div class="available-notes">
+    <h3>Available Notes</h3>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div>No notes available</div>
+    }
+    else
+    {
+        <table class="available-notes-table">
+            <thead>
+                <tr>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var note in Model)
+                {
+                    <tr>
+                        <td>@note</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<style>
+    .available-notes { margin-top: 1rem; }
+    .available-notes-table { border-collapse: collapse; width: 200px; }
+    .available-notes-table th, .available-notes-table td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+</style>
