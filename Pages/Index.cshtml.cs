@@ -8,6 +8,7 @@ namespace HarmonicaTuningDesigner.Pages
     {
         private readonly ScaleRepository _scaleRepo;
         private readonly TuningRepository _tuning_repo;
+        private readonly ChordService _chordService = new();
 
         [BindProperty]
         public HarmonicaDesignerViewModel ViewModel { get; set; } = new();
@@ -62,6 +63,9 @@ namespace HarmonicaTuningDesigner.Pages
 
             // Compute available notes for UI
             ComputeAvailableNotes();
+
+            // Populate detected chords so initial page shows chord list without user interaction
+            PopulateChords();
 
             return Page();
         }
@@ -163,6 +167,9 @@ namespace HarmonicaTuningDesigner.Pages
 
             // Compute available notes for UI
             ComputeAvailableNotes();
+
+            // Populate detected chords so initial page shows chord list without user interaction
+            PopulateChords();
         }
 
         private void ComputeAvailableNotes()
@@ -207,6 +214,22 @@ namespace HarmonicaTuningDesigner.Pages
             var all = Enumerable.Range(0, 12).ToList();
             var missing = all.Where(a => !set.Contains(a)).OrderBy(x => x).Select(x => SemitoneToName(x)).ToList();
             ViewModel.MissingNotes = missing;
+        }
+
+        private void PopulateChords()
+        {
+            if (ViewModel.Diatonic != null)
+            {
+                ViewModel.Diatonic.Chords = _chordService.FindChords(ViewModel.Diatonic.Holes);
+            }
+            if (ViewModel.ChromaticUpper != null)
+            {
+                ViewModel.ChromaticUpper.Chords = _chordService.FindChords(ViewModel.ChromaticUpper.Holes);
+            }
+            if (ViewModel.ChromaticLower != null)
+            {
+                ViewModel.ChromaticLower.Chords = _chordService.FindChords(ViewModel.ChromaticLower.Holes);
+            }
         }
 
         private Mode FindModeByName(IReadOnlyList<Scale> scales, string modeName)

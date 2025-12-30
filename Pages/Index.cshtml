@@ -110,6 +110,51 @@
         }
     </div>
 
+    <!-- Chords column -->
+    <div class="chords-global" style="margin-top:1rem;">
+        <h3>Detected Chords</h3>
+        @{
+            var chords = new List<ChordMatch>();
+            if (Model.ViewModel.HarmonicaType == "Chromatic")
+            {
+                if (Model.ViewModel.ChromaticUpper?.Chords != null) chords.AddRange(Model.ViewModel.ChromaticUpper.Chords);
+                if (Model.ViewModel.ChromaticLower?.Chords != null) chords.AddRange(Model.ViewModel.ChromaticLower.Chords);
+            }
+            else
+            {
+                if (Model.ViewModel.Diatonic?.Chords != null) chords.AddRange(Model.ViewModel.Diatonic.Chords);
+            }
+
+            chords = chords.OrderBy(c => c.StartHoleIndex).ToList();
+        }
+
+        @if (!chords.Any())
+        {
+            <div>No chords detected</div>
+        }
+        else
+        {
+            <table class="available-notes-table">
+                <thead>
+                    <tr><th>Type</th><th>Root</th><th>Range</th><th>Blow/Draw</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in chords)
+                    {
+                        <tr>
+                            <td>@c.Type</td>
+                            <td>@c.Root</td>
+                            <td>@c.StartHoleIndex - @c.EndHoleIndex</td>
+                            <td>@(c.IsBlow ? "Blow" : "Draw")</td>
+                            <td>@string.Join(" ", c.Notes)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+
 </div>
 </form>
 
