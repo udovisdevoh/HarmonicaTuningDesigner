@@ -44,6 +44,29 @@ function initializeAudioContext() {
 }
 
 /**
+ * Resumes the audio context (useful when invoked from a user gesture).
+ * @returns {Promise<void>} resolves when resumed or immediately if already running.
+ */
+async function resumeAudioContext() {
+    if (!audioContext) initializeAudioContext();
+    if (audioContext && audioContext.state === 'suspended' && typeof audioContext.resume === 'function') {
+        try {
+            await audioContext.resume();
+            console.log('Audio context resumed');
+        } catch (err) {
+            console.warn('Failed to resume audio context', err);
+        }
+    }
+}
+
+/**
+ * Returns the internal AudioContext instance (may be null until initialized)
+ */
+function getAudioContext() {
+    return audioContext;
+}
+
+/**
  * Loads the piano and string ensemble instruments.
  * @param {HTMLElement} loadingMessageElement - The HTML element to show/hide loading messages.
  * @param {HTMLElement} playButtonElement - The HTML play button to disable/enable.
@@ -216,5 +239,7 @@ window.midiPlayer = {
     playProgression: playProgression,
     stopAllNotes: stopAllNotes,
     isPlaying: isPlaying, // NEW: Expose isPlaying status
-    playSingleNote: playSingleNote // NEW: Expose single-note playback
+    playSingleNote: playSingleNote, // NEW: Expose single-note playback
+    resumeAudioContext: resumeAudioContext,
+    getAudioContext: getAudioContext
 };
