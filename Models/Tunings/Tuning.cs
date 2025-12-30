@@ -13,7 +13,7 @@ namespace HarmonicaTuningDesigner
         // Return the layout for a requested hole count; applies matching expansions up to that size
         public List<HoleDefinition> GetLayout(int holes)
         {
-            // start from a shallow copy of base
+            // start from a shallow copy of base preserving original indices (1..BaseHoles)
             var layout = BaseLayout.Select(h => new HoleDefinition { Index = h.Index, Blow = h.Blow, Draw = h.Draw }).ToList();
 
             if (Expansions != null && Expansions.Any())
@@ -25,12 +25,23 @@ namespace HarmonicaTuningDesigner
 
                     if (exp.Prepend != null && exp.Prepend.Any())
                     {
-                        layout.InsertRange(0, exp.Prepend.Select(h => new HoleDefinition { Index = 0, Blow = h.Blow, Draw = h.Draw }));
+                        // compute index for new prepended holes so they become 0, -1, -2... with XML order preserved
+                        var currentMin = layout.Min(h => h.Index);
+                        var start = currentMin - exp.Prepend.Count;
+                        var toInsert = exp.Prepend.Select(h => new HoleDefinition { Index = start++, Blow = h.Blow, Draw = h.Draw }).ToList();
+
+                        layout.InsertRange(0, toInsert);
                     }
 
                     if (exp.Append != null && exp.Append.Any())
                     {
-                        layout.AddRange(exp.Append.Select(h => new HoleDefinition { Index = 0, Blow = h.Blow, Draw = h.Draw }));
+                        // assign indices after current max
+                        var currentMax = layout.Max(h => h.Index);
+                        var idx = currentMax + 1;
+                        foreach (var h in exp.Append)
+                        {
+                            layout.Add(new HoleDefinition { Index = idx++, Blow = h.Blow, Draw = h.Draw });
+                        }
                     }
 
                     // If we've reached or exceeded the requested holes, stop applying further expansions
@@ -38,13 +49,7 @@ namespace HarmonicaTuningDesigner
                 }
             }
 
-            // Reindex
-            for (int i = 0; i < layout.Count; i++)
-            {
-                layout[i].Index = i + 1;
-            }
-
-            // Trim if necessary
+            // If more holes than requested, trim from the left (keep leftmost holes)
             if (layout.Count > holes)
             {
                 layout = layout.Take(holes).ToList();
