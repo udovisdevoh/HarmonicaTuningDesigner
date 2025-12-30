@@ -190,6 +190,194 @@
     </Tuning>
 
     <!-- ====================================================== -->
+    <!-- PADDY RICHTER SHARP HACK MULTI-MODE -->
+    <!-- ====================================================== -->
+
+    <Tuning id="paddy_richter_sharp" name="Paddy Richter Sharp Hack Multimode, Good for Mixolydian b6">
+        <Description>Richter with #6th on blow 3</Description>
+
+        <Base holes="10">
+            <Hole index="1">
+                <Blow>1</Blow>
+                <Draw>2</Draw>
+            </Hole>
+            <Hole index="2">
+                <Blow>3</Blow>
+                <Draw>5</Draw>
+            </Hole>
+            <Hole index="3">
+                <Blow>#6</Blow>
+                <Draw>7</Draw>
+            </Hole>
+            <Hole index="4">
+                <Blow>1</Blow>
+                <Draw>2</Draw>
+            </Hole>
+            <Hole index="5">
+                <Blow>3</Blow>
+                <Draw>4</Draw>
+            </Hole>
+            <Hole index="6">
+                <Blow>5</Blow>
+                <Draw>6</Draw>
+            </Hole>
+            <Hole index="7">
+                <Blow>1</Blow>
+                <Draw>7</Draw>
+            </Hole>
+            <Hole index="8">
+                <Blow>3</Blow>
+                <Draw>2</Draw>
+            </Hole>
+            <Hole index="9">
+                <Blow>5</Blow>
+                <Draw>4</Draw>
+            </Hole>
+            <Hole index="10">
+                <Blow>1</Blow>
+                <Draw>6</Draw>
+            </Hole>
+        </Base>
+
+        <Expansions>
+            <Expansion holes="12">
+                <Prepend>
+                    <Hole>
+                        <Blow>4</Blow>
+                        <Draw>5</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>#6</Blow>
+                        <Draw>7</Draw>
+                    </Hole>
+                </Prepend>
+                <Append />
+            </Expansion>
+
+            <Expansion holes="14">
+                <Prepend>
+                    <Hole>
+                        <Blow>#6</Blow>
+                        <Draw>1</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>2</Blow>
+                        <Draw>3</Draw>
+                    </Hole>
+                </Prepend>
+            </Expansion>
+
+            <Expansion holes="16">
+                <Prepend>
+                    <Hole>
+                        <Blow>1</Blow>
+                        <Draw>2</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>3</Blow>
+                        <Draw>5</Draw>
+                    </Hole>
+                </Prepend>
+                <Append />
+            </Expansion>
+        </Expansions>
+    </Tuning>
+
+    <!-- ====================================================== -->
+    <!-- PADDY RICHTER FLAT HACK MULTI-MODE -->
+    <!-- ====================================================== -->
+
+    <Tuning id="paddy_richter_flat" name="Paddy Richter Flat Hack Multimode, Good for Dorian">
+        <Description>Richter with b6th on blow 3</Description>
+
+        <Base holes="10">
+            <Hole index="1">
+                <Blow>1</Blow>
+                <Draw>2</Draw>
+            </Hole>
+            <Hole index="2">
+                <Blow>3</Blow>
+                <Draw>5</Draw>
+            </Hole>
+            <Hole index="3">
+                <Blow>b6</Blow>
+                <Draw>7</Draw>
+            </Hole>
+            <Hole index="4">
+                <Blow>1</Blow>
+                <Draw>2</Draw>
+            </Hole>
+            <Hole index="5">
+                <Blow>3</Blow>
+                <Draw>4</Draw>
+            </Hole>
+            <Hole index="6">
+                <Blow>5</Blow>
+                <Draw>6</Draw>
+            </Hole>
+            <Hole index="7">
+                <Blow>1</Blow>
+                <Draw>7</Draw>
+            </Hole>
+            <Hole index="8">
+                <Blow>3</Blow>
+                <Draw>2</Draw>
+            </Hole>
+            <Hole index="9">
+                <Blow>5</Blow>
+                <Draw>4</Draw>
+            </Hole>
+            <Hole index="10">
+                <Blow>1</Blow>
+                <Draw>6</Draw>
+            </Hole>
+        </Base>
+
+        <Expansions>
+            <Expansion holes="12">
+                <Prepend>
+                    <Hole>
+                        <Blow>4</Blow>
+                        <Draw>5</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>b6</Blow>
+                        <Draw>7</Draw>
+                    </Hole>
+                </Prepend>
+                <Append />
+            </Expansion>
+
+            <Expansion holes="14">
+                <Prepend>
+                    <Hole>
+                        <Blow>b6</Blow>
+                        <Draw>1</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>2</Blow>
+                        <Draw>3</Draw>
+                    </Hole>
+                </Prepend>
+            </Expansion>
+
+            <Expansion holes="16">
+                <Prepend>
+                    <Hole>
+                        <Blow>1</Blow>
+                        <Draw>2</Draw>
+                    </Hole>
+                    <Hole>
+                        <Blow>3</Blow>
+                        <Draw>5</Draw>
+                    </Hole>
+                </Prepend>
+                <Append />
+            </Expansion>
+        </Expansions>
+    </Tuning>
+
+    <!-- ====================================================== -->
     <!-- COUNTRY -->
     <!-- ====================================================== -->
 
