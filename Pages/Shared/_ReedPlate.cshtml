@@ -18,12 +18,18 @@
     </select>
 
     <label>Mode</label>
-    <select asp-for="Mode">
-        @foreach (var mode in (List<string>)ViewData["AvailableModes"])
-        {
-            <option>@mode</option>
-        }
-    </select>
+    <div class="mode-with-rotate">
+        <select asp-for="Mode">
+            @foreach (var mode in (List<string>)ViewData["AvailableModes"])
+            {
+                <option>@mode</option>
+            }
+        </select>
+
+        <!-- Rotate buttons submit the form with plate id and direction in the value -->
+        <button type="submit" name="rotateMode" value="@(ViewData["PlateId"] + ":up")" title="Rotate up (circle of fifths)">▲</button>
+        <button type="submit" name="rotateMode" value="@(ViewData["PlateId"] + ":down")" title="Rotate down (circle of fifths)">▼</button>
+    </div>
 </div>
 
 <div class="harmonica-grid">

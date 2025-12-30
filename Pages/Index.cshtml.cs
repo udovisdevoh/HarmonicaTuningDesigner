@@ -34,6 +34,13 @@ namespace HarmonicaTuningDesigner.Pages
             var scales = _scaleRepo.GetAll();
             var tunings = _tuning_repo.GetAll();
 
+            // If a rotate request was posted, handle it before building holes so new key/mode are used
+            var rotate = Request.Form["rotateMode"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(rotate))
+            {
+                TryHandleRotate(rotate, scales);
+            }
+
             // Diatonic
             if (ViewModel.Diatonic != null)
             {
@@ -68,6 +75,54 @@ namespace HarmonicaTuningDesigner.Pages
             PopulateChords();
 
             return Page();
+        }
+
+        private void TryHandleRotate(string rotateValue, IReadOnlyList<Scale> scales)
+        {
+            // rotateValue expected: "PlateId:up" or "PlateId:down"
+            var parts = rotateValue.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2) return;
+            var plateId = parts[0];
+            var direction = parts[1];
+
+            ReedPlateViewModel plate = plateId switch
+            {
+                "Diatonic" => ViewModel.Diatonic,
+                "ChromaticUpper" => ViewModel.ChromaticUpper,
+                "ChromaticLower" => ViewModel.ChromaticLower,
+                _ => null
+            };
+
+            if (plate == null) return;
+
+            // Find current mode and parent scale
+            var currentMode = scales.SelectMany(s => s.Modes).FirstOrDefault(m => m.Name == plate.Mode);
+            if (currentMode == null) return;
+            var parentScale = scales.FirstOrDefault(s => s.Modes.Any(m => m.Name == currentMode.Name));
+            if (parentScale == null) return;
+
+            // Compute old and new key semitones
+            var oldKeySem = NoteNameToSemitone(plate.Key ?? "C");
+            int newKeySem;
+            if (direction.Equals("up", StringComparison.OrdinalIgnoreCase))
+                newKeySem = (oldKeySem + 7) % 12; // up a fifth
+            else
+                newKeySem = (oldKeySem + 5) % 12; // down a fifth == up a fourth (+5 mod12)
+
+            // Determine new mode degree by advancing degree within the parent scale according to circle of fifths.
+            // For a 7-mode diatonic scale: moving up a fifth advances degree by +4 (mod 7); moving down a fifth advances by +3 (mod 7).
+            var oldDegree = currentMode.Degree; // 1-based
+            int degreeOffset = direction.Equals("up", StringComparison.OrdinalIgnoreCase) ? 4 : 3;
+            var newDegree = ((oldDegree - 1 + degreeOffset) % parentScale.Modes.Count) + 1;
+
+            var newMode = parentScale.Modes.FirstOrDefault(m => m.Degree == newDegree) ?? currentMode;
+
+            plate.Mode = newMode.Name;
+            plate.Key = SemitoneToName(newKeySem);
+
+            // Remove posted ModelState so updated model values are rendered by Razor helpers
+            ModelState.Remove($"ViewModel.{plateId}.Key");
+            ModelState.Remove($"ViewModel.{plateId}.Mode");
         }
 
         private void InitializeViewModel()
