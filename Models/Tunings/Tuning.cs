@@ -1,4 +1,4 @@
-﻿namespace HarmonicaTuningDesigner
+namespace HarmonicaTuningDesigner
 {
     public class Tuning
     {
