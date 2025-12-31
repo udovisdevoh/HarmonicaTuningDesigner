@@ -1,29 +1,17 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-
-// Simple site JS for HarmonicaTuningDesigner
-// Play a note when a note-cell is clicked. Uses WebAudio oscillator to synthesize a simple tone.
-
-(function () {
-    // Note name to semitone mapping
+﻿(function () {
     const noteMap = {
         'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
         'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8, 'Ab': 8,
         'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
     };
 
-    // Instrument program numbers (match midiPlayer.js constants)
     const PIANO_PROGRAM = 0;
     const STRING_ENSEMBLE_PROGRAM = 48;
 
-    // Promise to track loading state of midiPlayer + soundfont
     let midiPlayerReadyPromise = null;
 
     function loadScript(url) {
         return new Promise((resolve, reject) => {
-            // If already loaded, resolve
             const existing = document.querySelector(`script[src='${url}']`);
             if (existing) {
                 if (existing.getAttribute('data-loaded') === 'true') return resolve();
@@ -34,7 +22,7 @@
 
             const s = document.createElement('script');
             s.src = url;
-            s.async = false; // preserve execution order
+            s.async = false;
             s.onload = () => {
                 s.setAttribute('data-loaded', 'true');
                 resolve();
@@ -48,32 +36,41 @@
         if (midiPlayerReadyPromise) return midiPlayerReadyPromise;
 
         midiPlayerReadyPromise = (async () => {
-            // Load Soundfont player first, then midiPlayer
             try {
                 if (typeof Soundfont === 'undefined') {
                     await loadScript('/js/soundfont-player.min.js');
                 }
-            } catch (err) {
-                console.error('Failed to load soundfont-player.min.js', err);
-                throw err;
-            }
-
-            try {
                 if (typeof window.midiPlayer === 'undefined') {
                     await loadScript('/js/midiPlayer.js');
                 }
             } catch (err) {
-                console.error('Failed to load midiPlayer.js', err);
+                console.error('Failed to load dependencies', err);
                 throw err;
             }
 
-            // Wait a tick for midiPlayer to initialize
             return new Promise((resolve, reject) => {
                 const start = Date.now();
                 const timeout = 5000;
                 (function check() {
-                    if (window.midiPlayer && typeof window.midiPlayer.playSingleNote === 'function') return resolve(true);
-                    if (Date.now() - start > timeout) return reject(new Error('midiPlayer did not initialize in time'));
+                    if (window.midiPlayer && typeof window.midiPlayer.playSingleNote === 'function') {
+                        // --- PRELOAD INSTRUMENTS HERE ---
+                        // We call a silent note or a load method if your midiPlayer supports it
+                        // This forces the browser to download the .js/mp3 samples now.
+                        console.log("MidiPlayer ready, preloading instrument samples...");
+
+                        // If your midiPlayer.js has a specific 'load' or 'warmup' method, use it.
+                        // Otherwise, playing a note with 0 volume often triggers the download.
+                        if (typeof window.midiPlayer.preloadInstrument === 'function') {
+                            window.midiPlayer.preloadInstrument(PIANO_PROGRAM);
+                            window.midiPlayer.preloadInstrument(STRING_ENSEMBLE_PROGRAM);
+                        } else {
+                            // Fallback: trigger a silent note to force soundfont-player to fetch assets
+                            window.midiPlayer.playSingleNote(0, 0, PIANO_PROGRAM);
+                        }
+
+                        return resolve(true);
+                    }
+                    if (Date.now() - start > timeout) return reject(new Error('midiPlayer timeout'));
                     setTimeout(check, 50);
                 })();
             });
@@ -82,60 +79,45 @@
         return midiPlayerReadyPromise;
     }
 
+    // --- NEW: AUTO-START PRELOAD ---
+    // This triggers the download as soon as the page is idle or loaded
+    if (document.readyState === 'complete') {
+        ensureMidiPlayerLoaded();
+    } else {
+        window.addEventListener('load', () => ensureMidiPlayerLoaded());
+    }
+
     window.playNote = async function (cell) {
         try {
+            // ... (Your existing note parsing logic remains the same)
             const noteAttr = cell.dataset.note || '';
             const octaveAttr = cell.dataset.octave || '';
             let name = noteAttr.trim();
             let octave = parseInt(octaveAttr);
 
             if (!name) {
-                // fallback parse innerText (e.g. "C4" or "C#4")
                 const txt = cell.innerText.trim();
                 const m = txt.match(/^([A-G][#b]?)(\d+)$/);
-                if (m) {
-                    name = m[1];
-                    octave = parseInt(m[2]);
-                }
+                if (m) { name = m[1]; octave = parseInt(m[2]); }
             }
-
-            if (!name) {
-                console.warn('No note name found for cell', cell);
-                return;
-            }
-
+            if (!name) return;
             if (isNaN(octave)) octave = 4;
 
             const semitone = noteMap[name];
-            if (semitone === undefined) {
-                console.warn('Unknown note name', name);
-                return;
-            }
+            if (semitone === undefined) return;
 
-            const midi = (octave - 1) * 12 + semitone;
-
+            let midi = (octave - 1) * 12 + semitone;
             while (midi > 127) midi -= 12;
             while (midi < 0) midi += 12;
 
-            // Choose instrument by cell type: draw -> strings, blow -> piano
-            const type = (cell.dataset.type || '').toLowerCase();
-            // const program = type === 'draw' ? STRING_ENSEMBLE_PROGRAM : PIANO_PROGRAM;
             const program = PIANO_PROGRAM;
 
-            if (!window.midiPlayer || typeof window.midiPlayer.playSingleNote !== 'function') {
-                // Attempt to load midiPlayer and its dependency
-                try {
-                    await ensureMidiPlayerLoaded();
-                } catch (err) {
-                    console.warn('midiPlayer not available and failed to load; cannot play note');
-                    return;
-                }
-            }
+            // This will now resolve instantly because we preloaded
+            await ensureMidiPlayerLoaded();
 
-            // Play using midiPlayer
             window.midiPlayer.playSingleNote(midi, 0.6, program);
         } catch (err) {
             console.error(err);
         }
     };
-})()
+})();
