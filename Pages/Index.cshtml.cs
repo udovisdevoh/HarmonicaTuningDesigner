@@ -326,8 +326,12 @@ namespace HarmonicaTuningDesigner.Pages
                 var h = baseLayout[i];
 
                 int baseBlowMidi = ComputeBaseMidiFromDegreeOrNote(h.Blow, keySemitone, intervals, middleC);
-                int blowGroup = i / 3; // groups of 3 holes
-                int blowMidi = baseBlowMidi + blowGroup * 12;
+                // Solo tuning uses a 4-hole octave grouping rather than 3-hole groups used by many diatonic layouts.
+                // Detect by tuning name to apply a custom octave grouping for Solo tunings.
+                bool isSolo = !string.IsNullOrEmpty(tuning?.Name) && tuning.Name.Equals("Solo", StringComparison.OrdinalIgnoreCase);
+                int blowGroup = isSolo ? (i / 4) : (i / 3);
+                // For Solo tuning: raise the 4th hole in each 4-hole block by one octave so the block becomes C4 E4 G4 C5
+                int blowMidi = baseBlowMidi + blowGroup * 12 + ((isSolo && (i % 4 == 3)) ? 12 : 0);
 
                 int drawMidi;
 
@@ -335,9 +339,20 @@ namespace HarmonicaTuningDesigner.Pages
                 if (holes == 10)
                 {
                     int drawGroup;
-                    if (i <= 2) drawGroup = 0; // holes 1-3
-                    else if (i <= 6) drawGroup = 1; // holes 4-7
-                    else drawGroup = 2; // holes 8-10
+                    if (isSolo)
+                    {
+                        // Solo 10-hole layout groups are typically handled in 4-then-4-then-2 pattern
+                        if (i <= 3) drawGroup = 0; // holes 1-4
+                        else if (i <= 7) drawGroup = 1; // holes 4-7
+                        else drawGroup = 2; // holes 8-10
+                    }
+                    else
+                    {
+                        // legacy grouping for 10-hole (Richter-like)
+                        if (i <= 2) drawGroup = 0; // holes 1-3
+                        else if (i <= 6) drawGroup = 1; // holes 4-7
+                        else drawGroup = 2; // holes 8-10
+                    }
 
                     int baseDrawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
                     drawMidi = baseDrawMidi + drawGroup * 12;
@@ -347,8 +362,8 @@ namespace HarmonicaTuningDesigner.Pages
                     // General draw handling: pick smallest octave so draw is >= previous draw and reasonably close to blow
                     int baseDrawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
 
-                    // Start with same group as blow
-                    drawMidi = baseDrawMidi + (i / 3) * 12;
+                    // Start with same group as blow (respecting Solo 4-hole grouping)
+                    drawMidi = baseDrawMidi + (isSolo ? (i / 4) * 12 : (i / 3) * 12);
 
                     // Move draw up until it's >= blow - 6 semitones (so draw sits near blow)
                     while (drawMidi < blowMidi - 6) drawMidi += 12;
@@ -384,8 +399,8 @@ namespace HarmonicaTuningDesigner.Pages
                     list.Add(new HoleViewModel
                     {
                         Index = idx,
-                        Blow = new NoteCell { Note = last.Blow.Note, Octave = last.Blow.Octave, IsAltered = last.Blow.IsAltered },
-                        Draw = new NoteCell { Note = last.Draw.Note, Octave = last.Draw.Octave, IsAltered = last.Draw.IsAltered }
+                        Blow = new NoteCell { Note = last.Blow.Note, Octave = last.Blow.Octave },
+                        Draw = new NoteCell { Note = last.Draw.Note, Octave = last.Draw.Octave }
                     });
                 }
             }
@@ -399,7 +414,7 @@ namespace HarmonicaTuningDesigner.Pages
 
             var s = degreeStr.Trim();
 
-            // Support accidental prefixes like '#4' or 'b4' or '?4'/'?4'
+            // Support accidental prefixes like '#4' or 'b' or '?4'/'?4'
             int accidental = 0;
             if (s.StartsWith("#") || s.StartsWith("?"))
             {
