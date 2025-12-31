@@ -10,22 +10,39 @@
 
 .harmonica-grid {
     display: grid;
-    grid-template-columns: 60px repeat(auto-fit, minmax(50px, 1fr));
+    /* Each hole gets the same width. Min width 60px, otherwise evenly distribute available space. */
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
     gap: 6px;
+    align-items: start;
+}
+
+/* Each hole is a column containing the hole id and two stacked note cells */
+.hole-column {
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
 
-.row-label {
+.hole-id {
+    text-align: center;
+    width: 100%;
     font-weight: bold;
-    text-align: right;
+    margin-bottom: 4px;
 }
 
+/* Ensure note cells fill the full width of the hole column */
 .note-cell {
     border: 1px solid #ccc;
     padding: 0.5rem;
     text-align: center;
     cursor: pointer;
     user-select: none;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 48px;
 }
 
     .note-cell.blow {
