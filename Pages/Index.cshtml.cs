@@ -329,9 +329,32 @@ namespace HarmonicaTuningDesigner.Pages
                 // Solo tuning uses a 4-hole octave grouping rather than 3-hole groups used by many diatonic layouts.
                 // Detect by tuning name to apply a custom octave grouping for Solo tunings.
                 bool isSolo = !string.IsNullOrEmpty(tuning?.Name) && tuning.Name.Equals("Solo", StringComparison.OrdinalIgnoreCase);
-                int blowGroup = isSolo ? (i / 4) : (i / 3);
-                // For Solo tuning: raise the 4th hole in each 4-hole block by one octave so the block becomes C4 E4 G4 C5
-                int blowMidi = baseBlowMidi + blowGroup * 12 + ((isSolo && (i % 4 == 3)) ? 12 : 0);
+                // Detect Spiral tunings by id or name
+                bool isSpiral = tuning != null && (string.Equals(tuning.Id, "spiral", StringComparison.OrdinalIgnoreCase)
+                                                   || tuning.Name.IndexOf("Spiral", StringComparison.OrdinalIgnoreCase) >= 0);
+
+                int blowMidi;
+                if (isSpiral)
+                {
+                    // For spiral tunings compute octave by ensuring blow notes are non-decreasing and as close as possible
+                    // to the base interval. Start with baseBlowMidi and raise by octaves until it's > previous blow.
+                    blowMidi = baseBlowMidi;
+                    if (list.Count > 0)
+                    {
+                        var prevBlow = list.Last().Blow;
+                        var prevBlowMidi = (prevBlow.Octave + 1) * 12 + NoteNameToSemitone(prevBlow.Note);
+                        while (blowMidi <= prevBlowMidi)
+                        {
+                            blowMidi += 12;
+                        }
+                    }
+                }
+                else
+                {
+                    int blowGroup = isSolo ? (i / 4) : (i / 3);
+                    // For Solo tuning: raise the 4th hole in each 4-hole block by one octave so the block becomes C4 E4 G4 C5
+                    blowMidi = baseBlowMidi + blowGroup * 12 + ((isSolo && (i % 4 == 3)) ? 12 : 0);
+                }
 
                 int drawMidi;
 
@@ -356,6 +379,12 @@ namespace HarmonicaTuningDesigner.Pages
 
                     int baseDrawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
                     drawMidi = baseDrawMidi + drawGroup * 12;
+
+                    // For spiral tunings ensure draw is near blow (raise as needed)
+                    if (isSpiral)
+                    {
+                        while (drawMidi < blowMidi - 12) drawMidi += 12;
+                    }
                 }
                 else
                 {
@@ -363,10 +392,17 @@ namespace HarmonicaTuningDesigner.Pages
                     int baseDrawMidi = ComputeBaseMidiFromDegreeOrNote(h.Draw, keySemitone, intervals, middleC);
 
                     // Start with same group as blow (respecting Solo 4-hole grouping)
-                    drawMidi = baseDrawMidi + (isSolo ? (i / 4) * 12 : (i / 3) * 12);
-
-                    // Move draw up until it's >= blow - 6 semitones (so draw sits near blow)
-                    while (drawMidi < blowMidi - 6) drawMidi += 12;
+                    if (isSpiral)
+                    {
+                        // For spiral, start at literal base and raise until it's near blow
+                        drawMidi = baseDrawMidi;
+                        while (drawMidi < blowMidi - 6) drawMidi += 12;
+                    }
+                    else
+                    {
+                        drawMidi = baseDrawMidi + (isSolo ? (i / 4) * 12 : (i / 3) * 12);
+                        while (drawMidi < blowMidi - 6) drawMidi += 12;
+                    }
 
                     // ensure non-decreasing across holes
                     if (list.Count > 0)
