@@ -68,6 +68,13 @@ namespace HarmonicaTuningDesigner.Pages
             AdjustHoleCounts(ViewModel.ChromaticUpper);
             AdjustHoleCounts(ViewModel.ChromaticLower);
 
+            // NEW: If a pitch adjust was posted, apply it now to the built holes so changes persist
+            var adjust = Request.Form["adjustPitch"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(adjust))
+            {
+                TryHandleAdjustPitch(adjust);
+            }
+
             // Compute available notes for UI
             ComputeAvailableNotes();
 
@@ -592,5 +599,48 @@ namespace HarmonicaTuningDesigner.Pages
         {
             "C","C#/Db","D","D#/Eb","E","F","F#/Gb","G","G#/Ab","A","A#/Bb","B"
         };
+
+        private void TryHandleAdjustPitch(string adjustValue)
+        {
+            // Expected format: "PlateId:HoleIndex:type:direction" e.g. "Diatonic:3:blow:up"
+            var parts = adjustValue.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 4) return;
+            var plateId = parts[0];
+            if (!int.TryParse(parts[1], out var holeIndex)) return;
+            var type = parts[2]; // "blow" or "draw"
+            var direction = parts[3]; // "up" or "down"
+
+            ReedPlateViewModel plate = plateId switch
+            {
+                "Diatonic" => ViewModel.Diatonic,
+                "ChromaticUpper" => ViewModel.ChromaticUpper,
+                "ChromaticLower" => ViewModel.ChromaticLower,
+                _ => null
+            };
+
+            if (plate == null || plate.Holes == null) return;
+
+            var hole = plate.Holes.FirstOrDefault(h => h.Index == holeIndex);
+            if (hole == null) return;
+
+            NoteCell cell = type.Equals("blow", StringComparison.OrdinalIgnoreCase) ? hole.Blow : hole.Draw;
+            if (cell == null) return;
+
+            // Compute current midi number, adjust by one semitone, clamp 0..127
+            var sem = NoteNameToSemitone(cell.Note);
+            var midi = (cell.Octave + 1) * 12 + sem;
+            if (direction.Equals("up", StringComparison.OrdinalIgnoreCase)) midi++;
+            else midi--;
+            midi = Math.Max(0, Math.Min(127, midi));
+
+            var newSem = midi % 12;
+            var newOct = (midi / 12) - 1;
+            cell.Note = SemitoneToName(newSem);
+            cell.Octave = newOct;
+            cell.IsAltered = cell.Note.Contains('#');
+
+            // Remove modelstate for this plate so updated values render
+            ModelState.Remove($"ViewModel.{plateId}.Holes");
+        }
     }
 }

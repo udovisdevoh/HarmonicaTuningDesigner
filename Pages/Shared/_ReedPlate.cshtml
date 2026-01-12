@@ -51,6 +51,11 @@
                 {
                     <small>*</small>
                 }
+
+                <div class="pitch-controls">
+                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:blow:up")" title="Raise pitch">▲</button>
+                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:blow:down")" title="Lower pitch">▼</button>
+                </div>
             </div>
 
             <div class="note-cell draw"
@@ -64,6 +69,11 @@
                 {
                     <small>*</small>
                 }
+
+                <div class="pitch-controls">
+                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:draw:up")" title="Raise pitch">▲</button>
+                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:draw:down")" title="Lower pitch">▼</button>
+                </div>
             </div>
         </div>
     }
