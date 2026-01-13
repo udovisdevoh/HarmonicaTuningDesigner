@@ -24,6 +24,12 @@
         if (e.button !== undefined && e.button !== 0) return; // primary only
         pointerDown = true;
         lastPlayed = null;
+
+        // play the cell immediately on pointerdown
+        try {
+            const cell = document.elementFromPoint(e.clientX, e.clientY)?.closest('.note-cell');
+            playCellIfNew(cell);
+        } catch (err) { }
     });
     document.addEventListener('pointerup', () => { pointerDown = false; lastPlayed = null; });
     document.addEventListener('pointercancel', () => { pointerDown = false; lastPlayed = null; });
