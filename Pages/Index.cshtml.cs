@@ -125,6 +125,8 @@ namespace HarmonicaTuningDesigner.Pages
 
             var raw = new List<ChordMatch>();
 
+            var noteSet = new HashSet<int>();
+
             foreach (var plate in payload.Plates)
             {
                 if (plate?.Holes == null) continue;
@@ -144,6 +146,10 @@ namespace HarmonicaTuningDesigner.Pages
                         Blow = new NoteCell { Note = blowName, Octave = blowOct, IsAltered = !string.IsNullOrEmpty(blowName) && blowName.Contains('#') },
                         Draw = new NoteCell { Note = drawName, Octave = drawOct, IsAltered = !string.IsNullOrEmpty(drawName) && drawName.Contains('#') }
                     });
+
+                    // accumulate semitones for available notes
+                    if (!string.IsNullOrWhiteSpace(blowName)) noteSet.Add(NoteNameToSemitone(blowName));
+                    if (!string.IsNullOrWhiteSpace(drawName)) noteSet.Add(NoteNameToSemitone(drawName));
                 }
 
                 var service = new ChordService();
@@ -161,7 +167,18 @@ namespace HarmonicaTuningDesigner.Pages
                 .OrderBy(c => c.StartHoleIndex)
                 .ToList();
 
-            return new JsonResult(new { success = true, chords = chords.Select(c => new { Type = c.Type.ToString(), Root = c.Root, Start = c.StartHoleIndex, End = c.EndHoleIndex, IsBlow = c.IsBlow, Notes = c.Notes }).ToList() });
+            // compute available and missing notes
+            var orderedAvailable = noteSet.OrderBy(x => x).Select(x => SemitoneToName(x)).ToList();
+            var all = Enumerable.Range(0, 12).ToList();
+            var missing = all.Where(a => !noteSet.Contains(a)).OrderBy(x => x).Select(x => SemitoneToName(x)).ToList();
+
+            return new JsonResult(new
+            {
+                success = true,
+                chords = chords.Select(c => new { Type = c.Type.ToString(), Root = c.Root, Start = c.StartHoleIndex, End = c.EndHoleIndex, IsBlow = c.IsBlow, Notes = c.Notes }).ToList(),
+                availableNotes = orderedAvailable,
+                missingNotes = missing
+            });
         }
 
         private bool IsPlateSelectPosted(string plateId)

@@ -142,6 +142,28 @@
         console.debug('updateFromServer got', res);
         if (res && res.success){
             renderGlobalChords(res.chords);
+            // update available notes
+            const availContainer = document.querySelector('.available-notes-global');
+            if (availContainer && Array.isArray(res.availableNotes)){
+                if (res.availableNotes.length === 0){
+                    availContainer.innerHTML = '<h3>Available Notes</h3><div>No notes available</div>';
+                } else {
+                    // build table HTML
+                    const tableHtml = `<h3>Available Notes</h3><table class="available-notes-table"><thead><tr><th>Note</th></tr></thead><tbody>${res.availableNotes.map(n => `<tr><td>${n}</td></tr>`).join('')}</tbody></table>`;
+                    availContainer.innerHTML = tableHtml;
+                }
+            }
+
+            // update missing notes
+            const missingContainer = document.querySelector('.missing-notes-global');
+            if (missingContainer && Array.isArray(res.missingNotes)){
+                if (res.missingNotes.length === 0){
+                    missingContainer.innerHTML = '<h3>Missing Notes</h3><div>None — instrument contains all 12 semitones</div>';
+                } else {
+                    const tableHtml = `<h3>Missing Notes</h3><table class="available-notes-table"><thead><tr><th>Note</th></tr></thead><tbody>${res.missingNotes.map(n => `<tr><td>${n}</td></tr>`).join('')}</tbody></table>`;
+                    missingContainer.innerHTML = tableHtml;
+                }
+            }
         } else {
             console.debug('updateFromServer received no chords or failed', res);
         }
