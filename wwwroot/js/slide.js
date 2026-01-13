@@ -19,6 +19,8 @@
 
     // pointer events
     document.addEventListener('pointerdown', (e) => {
+        // ignore interactions that start inside pitch-controls (buttons)
+        if (e.target && e.target.closest && e.target.closest('.pitch-controls')) return;
         if (e.button !== undefined && e.button !== 0) return; // primary only
         pointerDown = true;
         lastPlayed = null;
@@ -38,6 +40,8 @@
     // fallback for mouse-only browsers
     if (!window.PointerEvent) {
         document.addEventListener('mousedown', (e) => {
+            // ignore starts inside pitch controls
+            if (e.target && e.target.closest && e.target.closest('.pitch-controls')) return;
             if (e.button !== 0) return;
             pointerDown = true; lastPlayed = null;
             const cell = e.target && e.target.closest ? e.target.closest('.note-cell') : null;
@@ -54,6 +58,13 @@
 
     // touch support
     document.addEventListener('touchstart', (e) => {
+        // ignore touches that start inside pitch controls
+        const t0 = e.touches && e.touches[0];
+        if (t0) {
+            const el = document.elementFromPoint(t0.clientX, t0.clientY);
+            if (el && el.closest && el.closest('.pitch-controls')) return;
+        }
+
         pointerDown = true; lastPlayed = null;
         const t = e.touches[0];
         if (!t) return;

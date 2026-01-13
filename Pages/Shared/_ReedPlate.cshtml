@@ -1,5 +1,9 @@
 ﻿@model ReedPlateViewModel
 
+@{
+    var plateId = (string)ViewData["PlateId"] ?? string.Empty;
+}
+
 <div class="reedplate-controls">
     <label>Key</label>
     <select asp-for="Key">
@@ -27,16 +31,17 @@
         </select>
 
         <!-- Rotate buttons submit the form with plate id and direction in the value -->
-        <button type="submit" name="rotateMode" value="@(ViewData["PlateId"] + ":up")" title="Rotate up (circle of fifths)">▲</button>
-        <button type="submit" name="rotateMode" value="@(ViewData["PlateId"] + ":down")" title="Rotate down (circle of fifths)">▼</button>
+        <button type="submit" name="rotateMode" value="@(plateId + ":up")" title="Rotate up (circle of fifths)">▲</button>
+        <button type="submit" name="rotateMode" value="@(plateId + ":down")" title="Rotate down (circle of fifths)">▼</button>
     </div>
 </div>
 
 <div class="harmonica-grid">
 
     <!-- Column for each hole; blow above draw in the same column -->
-    @foreach (var hole in Model.Holes)
+    @for (int i = 0; i < Model.Holes.Count; i++)
     {
+        var hole = Model.Holes[i];
         <div class="hole-column">
             <div class="hole-id">@hole.Index</div>
 
@@ -44,17 +49,22 @@
                  data-hole="@hole.Index"
                  data-type="blow"
                  data-note="@(hole.Blow?.Note ?? string.Empty)"
-                 data-octave="@(hole.Blow?.Octave.ToString() ?? string.Empty)"
-                 onpointerdown="event.preventDefault(); playNote(this)">
+                 data-octave="@(hole.Blow?.Octave.ToString() ?? string.Empty)">
                 <span>@(FormatNote(hole.Blow))</span>
                 @if (hole.Blow.IsAltered)
                 {
                     <small>*</small>
                 }
 
+                <!-- Hidden inputs so posted form contains current hole values and they survive across postbacks -->
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Index")" value="@hole.Index" />
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Blow.Note")" value="@(hole.Blow?.Note ?? string.Empty)" />
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Blow.Octave")" value="@(hole.Blow?.Octave.ToString() ?? string.Empty)" />
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Blow.IsAltered")" value="@(hole.Blow.IsAltered.ToString())" />
+
                 <div class="pitch-controls">
-                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:blow:up")" title="Raise pitch">▲</button>
-                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:blow:down")" title="Lower pitch">▼</button>
+                    <button type="button" class="pitch-btn" data-plate="@plateId" data-array-index="@i" data-side="blow" data-dir="up" title="Raise pitch">▲</button>
+                    <button type="button" class="pitch-btn" data-plate="@plateId" data-array-index="@i" data-side="blow" data-dir="down" title="Lower pitch">▼</button>
                 </div>
             </div>
 
@@ -62,17 +72,21 @@
                  data-hole="@hole.Index"
                  data-type="draw"
                  data-note="@(hole.Draw?.Note ?? string.Empty)"
-                 data-octave="@(hole.Draw?.Octave.ToString() ?? string.Empty)"
-                 onpointerdown="event.preventDefault(); playNote(this)">
+                 data-octave="@(hole.Draw?.Octave.ToString() ?? string.Empty)">
                 <span>@(FormatNote(hole.Draw))</span>
                 @if (hole.Draw.IsAltered)
                 {
                     <small>*</small>
                 }
 
+                <!-- Hidden inputs for draw -->
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Draw.Note")" value="@(hole.Draw?.Note ?? string.Empty)" />
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Draw.Octave")" value="@(hole.Draw?.Octave.ToString() ?? string.Empty)" />
+                <input type="hidden" name="@($"ViewModel.{plateId}.Holes[{i}].Draw.IsAltered")" value="@(hole.Draw.IsAltered.ToString())" />
+
                 <div class="pitch-controls">
-                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:draw:up")" title="Raise pitch">▲</button>
-                    <button type="submit" class="pitch-btn" name="adjustPitch" value="@($"{ViewData["PlateId"]}:{hole.Index}:draw:down")" title="Lower pitch">▼</button>
+                    <button type="button" class="pitch-btn" data-plate="@plateId" data-array-index="@i" data-side="draw" data-dir="up" title="Raise pitch">▲</button>
+                    <button type="button" class="pitch-btn" data-plate="@plateId" data-array-index="@i" data-side="draw" data-dir="down" title="Lower pitch">▼</button>
                 </div>
             </div>
         </div>

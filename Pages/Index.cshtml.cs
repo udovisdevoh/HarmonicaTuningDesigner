@@ -36,8 +36,11 @@ namespace HarmonicaTuningDesigner.Pages
 
             // If a rotate request was posted, handle it before building holes so new key/mode are used
             var rotate = Request.Form["rotateMode"].FirstOrDefault();
+            string rotatedPlateId = null;
             if (!string.IsNullOrEmpty(rotate))
             {
+                var parts = rotate.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 2) rotatedPlateId = parts[0];
                 TryHandleRotate(rotate, scales);
             }
 
@@ -46,21 +49,30 @@ namespace HarmonicaTuningDesigner.Pages
             {
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.Diatonic.Tuning) ?? tunings.First();
                 var mode = FindModeByName(scales, ViewModel.Diatonic.Mode) ?? scales.First().Modes.First();
-                ViewModel.Diatonic.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, ViewModel.Diatonic.Key ?? "C", mode);
+                if (ViewModel.Diatonic.Holes == null || ViewModel.Diatonic.Holes.Count == 0 || rotatedPlateId == "Diatonic")
+                {
+                    ViewModel.Diatonic.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, ViewModel.Diatonic.Key ?? "C", mode);
+                }
             }
 
             if (ViewModel.ChromaticUpper != null)
             {
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.ChromaticUpper.Tuning) ?? tunings.First();
                 var mode = FindModeByName(scales, ViewModel.ChromaticUpper.Mode) ?? scales.First().Modes.First();
-                ViewModel.ChromaticUpper.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, ViewModel.ChromaticUpper.Key ?? "C", mode);
+                if (ViewModel.ChromaticUpper.Holes == null || ViewModel.ChromaticUpper.Holes.Count == 0 || rotatedPlateId == "ChromaticUpper")
+                {
+                    ViewModel.ChromaticUpper.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, ViewModel.ChromaticUpper.Key ?? "C", mode);
+                }
             }
 
             if (ViewModel.ChromaticLower != null)
             {
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.ChromaticLower.Tuning) ?? tunings.First();
                 var mode = FindModeByName(scales, ViewModel.ChromaticLower.Mode) ?? scales.First().Modes.First();
-                ViewModel.ChromaticLower.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, ViewModel.ChromaticLower.Key ?? "C", mode);
+                if (ViewModel.ChromaticLower.Holes == null || ViewModel.ChromaticLower.Holes.Count == 0 || rotatedPlateId == "ChromaticLower")
+                {
+                    ViewModel.ChromaticLower.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, ViewModel.ChromaticLower.Key ?? "C", mode);
+                }
             }
 
             // Ensure holes count is respected by trimming or padding the Holes list
@@ -68,7 +80,7 @@ namespace HarmonicaTuningDesigner.Pages
             AdjustHoleCounts(ViewModel.ChromaticUpper);
             AdjustHoleCounts(ViewModel.ChromaticLower);
 
-            // NEW: If a pitch adjust was posted, apply it now to the built holes so changes persist
+            // NEW: If a pitch adjust was posted, apply it now to the built/preserved holes so changes persist
             var adjust = Request.Form["adjustPitch"].FirstOrDefault();
             if (!string.IsNullOrEmpty(adjust))
             {
@@ -183,10 +195,16 @@ namespace HarmonicaTuningDesigner.Pages
             }
             else
             {
+                // If holes were posted by the form, preserve them. Only rebuild if missing or count mismatch.
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.Diatonic.Tuning) ?? tunings.First();
                 var key = ViewModel.Diatonic.Key ?? "C";
                 var mode = FindModeByName(scales, ViewModel.Diatonic.Mode) ?? scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
-                ViewModel.Diatonic.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+
+                if (ViewModel.Diatonic.Holes == null || ViewModel.Diatonic.Holes.Count == 0)
+                {
+                    ViewModel.Diatonic.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+                }
+
                 // ensure tuning/key/mode values are set
                 ViewModel.Diatonic.Tuning = t.Name;
                 ViewModel.Diatonic.Key = key;
@@ -212,7 +230,12 @@ namespace HarmonicaTuningDesigner.Pages
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.ChromaticUpper.Tuning) ?? tunings.First();
                 var key = ViewModel.ChromaticUpper.Key ?? "C";
                 var mode = FindModeByName(scales, ViewModel.ChromaticUpper.Mode) ?? scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
-                ViewModel.ChromaticUpper.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+
+                if (ViewModel.ChromaticUpper.Holes == null || ViewModel.ChromaticUpper.Holes.Count == 0)
+                {
+                    ViewModel.ChromaticUpper.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+                }
+
                 ViewModel.ChromaticUpper.Tuning = t.Name;
                 ViewModel.ChromaticUpper.Key = key;
                 ViewModel.ChromaticUpper.Mode = mode.Name;
@@ -237,7 +260,12 @@ namespace HarmonicaTuningDesigner.Pages
                 var t = tunings.FirstOrDefault(x => x.Name == ViewModel.ChromaticLower.Tuning) ?? tunings.First();
                 var key = ViewModel.ChromaticLower.Key ?? "C";
                 var mode = FindModeByName(scales, ViewModel.ChromaticLower.Mode) ?? scales.SelectMany(s => s.Modes).FirstOrDefault(mm => mm.Name == "Ionian") ?? scales.First().Modes.First();
-                ViewModel.ChromaticLower.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+
+                if (ViewModel.ChromaticLower.Holes == null || ViewModel.ChromaticLower.Holes.Count == 0)
+                {
+                    ViewModel.ChromaticLower.Holes = BuildHolesFromTuning(t, ViewModel.HoleCount, key, mode);
+                }
+
                 ViewModel.ChromaticLower.Tuning = t.Name;
                 ViewModel.ChromaticLower.Key = key;
                 ViewModel.ChromaticLower.Mode = mode.Name;
@@ -641,6 +669,48 @@ namespace HarmonicaTuningDesigner.Pages
 
             // Remove modelstate for this plate so updated values render
             ModelState.Remove($"ViewModel.{plateId}.Holes");
+        }
+
+        // Handler to apply a single pitch adjustment via AJAX (avoids a full postback)
+        public JsonResult OnGetAdjustPitch(string plateId, int holeIndex, string side, string dir)
+        {
+            if (string.IsNullOrEmpty(plateId) || holeIndex <= 0 || string.IsNullOrEmpty(side) || string.IsNullOrEmpty(dir))
+                return new JsonResult(new { success = false });
+
+            ReedPlateViewModel plate = plateId switch
+            {
+                "Diatonic" => ViewModel.Diatonic,
+                "ChromaticUpper" => ViewModel.ChromaticUpper,
+                "ChromaticLower" => ViewModel.ChromaticLower,
+                _ => null
+            };
+
+            if (plate == null || plate.Holes == null)
+                return new JsonResult(new { success = false });
+
+            var hole = plate.Holes.FirstOrDefault(h => h.Index == holeIndex);
+            if (hole == null)
+                return new JsonResult(new { success = false });
+
+            NoteCell cell = side.Equals("blow", StringComparison.OrdinalIgnoreCase) ? hole.Blow : hole.Draw;
+            if (cell == null) return new JsonResult(new { success = false });
+
+            var sem = NoteNameToSemitone(cell.Note);
+            var midi = (cell.Octave + 1) * 12 + sem;
+            if (dir.Equals("up", StringComparison.OrdinalIgnoreCase)) midi++;
+            else midi--;
+            midi = Math.Max(0, Math.Min(127, midi));
+
+            var newSem = midi % 12;
+            var newOct = (midi / 12) - 1;
+            cell.Note = SemitoneToName(newSem);
+            cell.Octave = newOct;
+            cell.IsAltered = cell.Note.Contains('#');
+
+            // Remove ModelState so later full postbacks render updated values
+            ModelState.Remove($"ViewModel.{plateId}.Holes");
+
+            return new JsonResult(new { success = true, note = cell.Note, octave = cell.Octave });
         }
     }
 }
