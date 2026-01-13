@@ -2,6 +2,7 @@
 @model HarmonicaTuningDesigner.Pages.IndexModel
 
 <form method="post" id="designerForm">
+    @Html.AntiForgeryToken()
 <div class="designer-container">
 
     <!-- ========================= -->
@@ -141,17 +142,17 @@
                 .ToList();
         }
 
-        @if (!chords.Any())
-        {
-            <div>No chords detected</div>
-        }
-        else
-        {
-            <table class="available-notes-table">
-                <thead>
-                    <tr><th>Type</th><th>Root</th><th>Range</th><th>Blow/Draw</th><th>Notes</th></tr>
-                </thead>
-                <tbody>
+        <table class="available-notes-table">
+            <thead>
+                <tr><th>Type</th><th>Root</th><th>Range</th><th>Blow/Draw</th><th>Notes</th></tr>
+            </thead>
+            <tbody id="chords-tbody">
+                @if (!chords.Any())
+                {
+                    <tr><td colspan="5">No chords detected</td></tr>
+                }
+                else
+                {
                     @foreach (var c in chords)
                     {
                         <tr>
@@ -162,9 +163,9 @@
                             <td>@string.Join(" ", c.Notes)</td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        }
+                }
+            </tbody>
+        </table>
     </div>
 
 
@@ -187,5 +188,6 @@
             });
         })();
     </script>
+    <script src="/js/chordDetection.js"></script>
     <script src="/js/pitchControls.js"></script>
 }

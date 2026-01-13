@@ -1,9 +1,31 @@
 using HarmonicaTuningDesigner;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace HarmonicaTuningDesigner.Pages
 {
+    // DTOs for AJAX payload
+    public class PlatesPayload
+    {
+        public List<PlateDto> Plates { get; set; } = new();
+    }
+    public class PlateDto
+    {
+        public string PlateId { get; set; }
+        public List<HoleDto> Holes { get; set; } = new();
+    }
+    public class HoleDto
+    {
+        public NoteDto Blow { get; set; }
+        public NoteDto Draw { get; set; }
+    }
+    public class NoteDto
+    {
+        public string Note { get; set; }
+        public int? Octave { get; set; }
+    }
+
     public class IndexModel : PageModel
     {
         private readonly ScaleRepository _scaleRepo;
@@ -94,6 +116,52 @@ namespace HarmonicaTuningDesigner.Pages
             PopulateChords();
 
             return Page();
+        }
+
+        [IgnoreAntiforgeryToken]
+        public JsonResult OnPostUpdateChords([FromBody] PlatesPayload payload)
+        {
+            if (payload == null || payload.Plates == null) return new JsonResult(new { success = false });
+
+            var raw = new List<ChordMatch>();
+
+            foreach (var plate in payload.Plates)
+            {
+                if (plate?.Holes == null) continue;
+
+                var holes = new List<HoleViewModel>();
+                int idx = 1;
+                foreach (var h in plate.Holes)
+                {
+                    var blowName = h?.Blow?.Note ?? string.Empty;
+                    var blowOct = h?.Blow?.Octave ?? 4;
+                    var drawName = h?.Draw?.Note ?? string.Empty;
+                    var drawOct = h?.Draw?.Octave ?? 4;
+
+                    holes.Add(new HoleViewModel
+                    {
+                        Index = idx++,
+                        Blow = new NoteCell { Note = blowName, Octave = blowOct, IsAltered = !string.IsNullOrEmpty(blowName) && blowName.Contains('#') },
+                        Draw = new NoteCell { Note = drawName, Octave = drawOct, IsAltered = !string.IsNullOrEmpty(drawName) && drawName.Contains('#') }
+                    });
+                }
+
+                var service = new ChordService();
+                var plateChords = service.FindChords(holes);
+                if (plateChords != null && plateChords.Any()) raw.AddRange(plateChords);
+            }
+
+            var chords = raw
+                .GroupBy(c => (c.Type, c.Root))
+                .Select(g => g
+                    .OrderBy(c => (c.EndHoleIndex - c.StartHoleIndex))
+                    .ThenByDescending(c => c.IsBlow)
+                    .ThenBy(c => c.StartHoleIndex)
+                    .First())
+                .OrderBy(c => c.StartHoleIndex)
+                .ToList();
+
+            return new JsonResult(new { success = true, chords = chords.Select(c => new { Type = c.Type.ToString(), Root = c.Root, Start = c.StartHoleIndex, End = c.EndHoleIndex, IsBlow = c.IsBlow, Notes = c.Notes }).ToList() });
         }
 
         private bool IsPlateSelectPosted(string plateId)

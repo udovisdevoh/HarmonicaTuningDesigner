@@ -12,10 +12,6 @@
 
     function updateHiddenInputs(button, newName, newOct){
         const base = `ViewModel.${button.getAttribute('data-plate')}.Holes[${button.getAttribute('data-array-index')}]`;
-        const noteInput = document.querySelector(`input[name='${base}.Blow.Note'], input[name='${base}.Draw.Note']`);
-        const octaveInput = document.querySelector(`input[name='${base}.Blow.Octave'], input[name='${base}.Draw.Octave']`);
-        const alteredInput = document.querySelector(`input[name='${base}.Blow.IsAltered'], input[name='${base}.Draw.IsAltered']`);
-        // If both blow/draw inputs exist, pick by side
         const side = button.getAttribute('data-side');
         const specificNoteInput = document.querySelector(`input[name='${base}.${side}.Note']`);
         const specificOctaveInput = document.querySelector(`input[name='${base}.${side}.Octave']`);
@@ -44,8 +40,23 @@
             const j = await resp.json();
             return j;
         } catch (e) {
+            console.debug('persistChangeToServer error', e);
             return null;
         }
+    }
+
+    async function triggerDetectionsForPlate(plateEl){
+        try{
+            if (window.chordDetect && typeof window.chordDetect === 'function'){
+                const local = window.chordDetect(plateEl);
+                plateEl.dispatchEvent(new CustomEvent('chordsDetected', { detail: local, bubbles: true, composed: true }));
+            }
+        } catch (e) { console.debug('trigger local detection error', e); }
+        try{
+            if (window.updateGlobalChordsTable && typeof window.updateGlobalChordsTable === 'function'){
+                window.updateGlobalChordsTable();
+            }
+        } catch (e) { console.debug('trigger server update error', e); }
     }
 
     async function adjust(button, dir){
@@ -69,6 +80,7 @@
 
         // Try to persist via server endpoint
         const res = await persistChangeToServer(button, parseInt(button.getAttribute('data-array-index')) + 1, side, dir);
+        const plateEl = document.querySelector(`.reedplate[data-plate='${button.getAttribute('data-plate')}']`);
         if (res && res.success) {
             updateHiddenInputs(button, res.note, res.octave);
             // play note via midiPlayer if available
@@ -77,7 +89,12 @@
                     const midiNum = (res.octave + 1) * 12 + (semitoneMap[res.note] ?? 0);
                     window.midiPlayer.playSingleNote(midiNum, 0.6);
                 }
-            } catch (e) {}
+            } catch (e) { console.debug('play error', e); }
+
+            // Dispatch event to trigger chord detection for this plate
+            if (plateEl) plateEl.dispatchEvent(new CustomEvent('notesChanged', { bubbles: true, composed: true }));
+            // Also call detection helpers directly to be robust
+            if (plateEl) await triggerDetectionsForPlate(plateEl);
         } else {
             // Fallback to local update if server not reachable
             updateHiddenInputs(button, newName, newOct);
@@ -85,7 +102,9 @@
                 if (window.midiPlayer && typeof window.midiPlayer.playSingleNote === 'function') {
                     window.midiPlayer.playSingleNote(midi, 0.6);
                 }
-            } catch (e) {}
+            } catch (e) { console.debug('play fallback error', e); }
+            if (plateEl) plateEl.dispatchEvent(new CustomEvent('notesChanged', { bubbles: true, composed: true }));
+            if (plateEl) await triggerDetectionsForPlate(plateEl);
         }
     }
 
@@ -95,5 +114,19 @@
         e.preventDefault();
         const dir = b.getAttribute('data-dir');
         adjust(b, dir);
+    });
+
+    // Expose helper to trigger detection externally
+    window.triggerChordDetection = function(plateEl) {
+        if (!plateEl) return;
+        plateEl.dispatchEvent(new CustomEvent('notesChanged', { bubbles: true, composed: true }));
+        try{ if (window.chordDetect) { const local = window.chordDetect(plateEl); plateEl.dispatchEvent(new CustomEvent('chordsDetected', { detail: local, bubbles: true, composed: true })); } } catch(e){console.debug(e);} 
+        try{ if (window.updateGlobalChordsTable) window.updateGlobalChordsTable(); } catch(e){console.debug(e);} 
+    };
+
+    // On load, trigger detection once so initial chords are computed client-side if needed
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.reedplate').forEach(function(p){ p.dispatchEvent(new CustomEvent('notesChanged', { bubbles: true, composed: true })); try{ if (window.chordDetect){ const local = window.chordDetect(p); p.dispatchEvent(new CustomEvent('chordsDetected', { detail: local, bubbles: true, composed: true })); } }catch(e){console.debug(e);} });
+        try{ if (window.updateGlobalChordsTable) window.updateGlobalChordsTable(); } catch(e){console.debug(e);} 
     });
 })();

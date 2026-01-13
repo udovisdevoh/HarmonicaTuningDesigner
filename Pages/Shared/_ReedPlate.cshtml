@@ -4,6 +4,7 @@
     var plateId = (string)ViewData["PlateId"] ?? string.Empty;
 }
 
+<div class="reedplate" data-plate="@plateId">
 <div class="reedplate-controls">
     <label>Key</label>
     <select asp-for="Key">
@@ -92,6 +93,7 @@
         </div>
     }
 
+</div>
 </div>
 
 @functions {
