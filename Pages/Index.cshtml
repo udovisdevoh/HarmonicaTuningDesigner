@@ -155,7 +155,7 @@
                 {
                     @foreach (var c in chords)
                     {
-                        <tr>
+                        <tr class="@(c.Type == ChordType.Minor ? "chord-minor" : c.Type == ChordType.Major ? "chord-major" : c.Type == ChordType.Augmented ? "chord-augmented" : "chord-diminished")">
                             <td>@c.Type</td>
                             <td>@c.Root</td>
                             <td>@c.StartHoleIndex - @c.EndHoleIndex</td>

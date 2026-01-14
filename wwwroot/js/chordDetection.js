@@ -133,7 +133,16 @@
         }
         // Normalize server objects then render
         const norm = chords.map(normalizeServerChord).filter(x=>x!=null);
-        const rows = norm.map(c => `<tr><td>${c.Type}</td><td>${c.Root}</td><td>${c.Start} - ${c.End}</td><td>${c.IsBlow ? 'Blow' : 'Draw'}</td><td>${(c.Notes||[]).join(' ')}</td></tr>`);
+        const rows = norm.map(c => {
+            const t = (c.Type || '').toString().toLowerCase();
+            let cls = '';
+            if (t === 'minor') cls = 'chord-minor';
+            else if (t === 'major') cls = 'chord-major';
+            else if (t === 'augmented') cls = 'chord-augmented';
+            else if (t === 'diminished') cls = 'chord-diminished';
+            // fallback: no class
+            return `<tr class="${cls}"><td>${c.Type}</td><td>${c.Root}</td><td>${c.Start} - ${c.End}</td><td>${c.IsBlow ? 'Blow' : 'Draw'}</td><td>${(c.Notes||[]).join(' ')}</td></tr>`;
+        });
         tbody.innerHTML = rows.join('');
     }
 

@@ -80,3 +80,15 @@
     background: rgba(255,255,255,0.9);
     cursor: pointer;
 }
+
+/* Chord row colors (general) */
+.chord-minor { background-color: #d4f7d4; }      /* green (light) */
+.chord-major { background-color: #f7d4d4; }      /* red (light) */
+.chord-augmented { background-color: #f7d0f7; } /* magenta (light) */
+.chord-diminished { background-color: #001f3f; color: #fff; } /* dark navy blue with white text */
+
+/* More specific rules targeting table cells to override Bootstrap table styles if needed */
+.available-notes-table tbody tr.chord-minor td { background-color: #d4f7d4 !important; color: inherit !important; }
+.available-notes-table tbody tr.chord-major td { background-color: #f7d4d4 !important; color: inherit !important; }
+.available-notes-table tbody tr.chord-augmented td { background-color: #f7d0f7 !important; color: inherit !important; }
+.available-notes-table tbody tr.chord-diminished td { background-color: #001f3f !important; color: #fff !important; }
