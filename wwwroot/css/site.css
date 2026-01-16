@@ -8,12 +8,25 @@
     margin-bottom: 1rem;
 }
 
+/* Harmonica frame to make the grid look like a real harmonica comb/cover */
+.harmonica {
+    background: linear-gradient(180deg, #e9edf0 0%, #cfd6da 40%, #b7bec3 100%);
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+    display: block;
+}
+
 .harmonica-grid {
     display: grid;
     /* Each hole gets the same width. Min width 60px, otherwise evenly distribute available space. */
     grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
     gap: 6px;
     align-items: start;
+    padding: 6px; /* padding inside the frame */
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    border-radius: 6px;
 }
 
 /* Each hole is a column containing the hole id and two stacked note cells */
@@ -21,6 +34,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+}
+
+/* little screw between holes to mimic real cover plates */
+.hole-column:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: -3px;
+    top: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0%, #c0c0c0 40%, #7a7a7a 100%);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.25), inset 0 -1px 0 rgba(255,255,255,0.35);
 }
 
 .hole-id {
@@ -28,11 +55,17 @@
     width: 100%;
     font-weight: bold;
     margin-bottom: 4px;
+    background: linear-gradient(180deg,#dfe6ea,#c9d3d8);
+    padding: 2px 6px;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    letter-spacing: 0.6px;
 }
 
 /* Ensure note cells fill the full width of the hole column */
 .note-cell {
-    border: 1px solid #ccc;
+    border: 1px solid #b6b6b6;
     padding: 0.5rem;
     text-align: center;
     cursor: pointer;
@@ -44,19 +77,39 @@
     align-items: center;
     min-height: 48px;
     position: relative;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #f6f6f6 0%, #dddddd 100%);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.12), inset 0 2px 6px rgba(255,255,255,0.6);
+    transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+    overflow: hidden;
 }
 
-    .note-cell.blow {
-        background: #eef;
-    }
+.note-cell::before {
+    /* glossy reflection */
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: -20%;
+    width: 140%;
+    height: 60%;
+    background: radial-gradient(ellipse at top left, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.0) 40%);
+    transform: rotate(-15deg);
+    pointer-events: none;
+}
 
-    .note-cell.draw {
-        background: #efe;
-    }
+.note-cell.blow {
+    background: linear-gradient(180deg,#eaf4ff,#cfe7ff);
+}
 
-    .note-cell:hover {
-        background: #ffd;
-    }
+.note-cell.draw {
+    background: linear-gradient(180deg,#eafbea,#d6f5d6);
+}
+
+.note-cell:hover {
+    background: linear-gradient(180deg,#fff7d6,#ffd); /* warm highlight when hovering */
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.18), inset 0 2px 6px rgba(255,255,255,0.6);
+}
 
 .pitch-controls {
     display: flex;
@@ -77,8 +130,16 @@
     align-items: center;
     justify-content: center;
     border: 1px solid rgba(0,0,0,0.15);
-    background: rgba(255,255,255,0.9);
+    background: linear-gradient(180deg,#f8f8f8,#e8e8e8);
+    border-radius: 3px;
     cursor: pointer;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+
+/* give the pitch buttons a subtle pressed look on active */
+.pitch-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
 }
 
 /* Chord row colors (general) */
