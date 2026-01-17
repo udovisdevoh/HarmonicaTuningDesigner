@@ -167,7 +167,7 @@
             const missingContainer = document.querySelector('.missing-notes-global');
             if (missingContainer && Array.isArray(res.missingNotes)){
                 if (res.missingNotes.length === 0){
-                    missingContainer.innerHTML = '<h3>Missing Notes</h3><div>None — instrument contains all 12 semitones</div>';
+                    missingContainer.innerHTML = '<h3>Missing Notes</h3><div>None - instrument contains all 12 semitones</div>';
                 } else {
                     const tableHtml = `<h3>Missing Notes</h3><table class="available-notes-table"><thead><tr><th>Note</th></tr></thead><tbody>${res.missingNotes.map(n => `<tr><td>${n}</td></tr>`).join('')}</tbody></table>`;
                     missingContainer.innerHTML = tableHtml;
